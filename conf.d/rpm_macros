@@ -1,0 +1,3 @@
+%_signature gpg
+%_gpg_name %{getenv:GPG_KEYNAME}
+%_gpg_sign_cmd_extra_args --passphrase-file=%{getenv:GPG_PASSPHRASE_FILE} --batch --pinentry-mode loopback

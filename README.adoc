@@ -1,0 +1,16 @@
+= docker-packaging
+
+image:https://img.shields.io/docker/pulls/jenkinsciinfra/packaging?label=jenkinsciinfra%2Fpackaging&logo=docker&logoColor=white[link="https://hub.docker.com/r/jenkinsciinfra/packaging"]
+
+This repository contains everything needed to build a docker image which can be used to build debian, redhat, suse package for Jenkins core.
+
+== Configuration
+In order to sign a package with a gpg key, following env variable can be defined
+
+* `GPG_KEYNAME`: Define the gpg key used to sign a package
+* `GPG_PASSPHRASE_FILE`: Define the gpg key passphrase
+
+== LINKS
+* https://github.com/jenkinsci/packaging[jenkinsci/packaging]
+* https://github.com/jenkins-infra/charts[jenkins-infra/charts]
+* https://github.com/jenkins-infra/charts[jenkins-infra/release]
