@@ -5,9 +5,9 @@ image:https://img.shields.io/docker/pulls/jenkinsciinfra/packaging?label=jenkins
 This repository contains everything needed to build a docker image which can be used to build debian, redhat, suse package for Jenkins core.
 
 == Configuration
-In order to sign a package with a gpg key, following env variable can be defined
+In order to sign packages with a gpg key, the following env variable must be defined
 
-* `GPG_KEYNAME`: Define the gpg key used to sign a package
+* `GPG_KEYNAME`: Define the gpg key used to sign packages
 * `GPG_PASSPHRASE_FILE`: Define the gpg key passphrase
 
 == LINKS
