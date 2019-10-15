@@ -13,6 +13,7 @@ RUN \
   apt-get update &&\ 
   apt-get install -y \
     apt-utils \
+    python-pip \
     createrepo \
     debhelper \
     devscripts \
@@ -20,7 +21,9 @@ RUN \
     make \
     maven \
     rpm \
+    rsync \
     tzdata \
     unzip &&\
   apt-get clean &&\ 
+  pip install jinja2  && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
