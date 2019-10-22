@@ -13,7 +13,7 @@ RUN \
   apt-get update &&\ 
   apt-get install -y \
     apt-utils \
-    python-pip \
+    python3-pip \
     createrepo \
     debhelper \
     devscripts \
@@ -25,5 +25,5 @@ RUN \
     tzdata \
     unzip &&\
   apt-get clean &&\ 
-  pip install jinja2  && \
+  pip3 install jinja2  && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
