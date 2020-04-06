@@ -32,3 +32,7 @@ RUN \
 RUN useradd -m -u 1000 jenkins
 
 USER jenkins
+
+RUN \
+  mkdir /home/jenkins/.ssh && \
+  ssh-keyscan -t rsa pkg.jenkins.io >> /home/jenkins/.ssh/known_hosts
