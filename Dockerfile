@@ -29,4 +29,6 @@ RUN \
   pip3 install jinja2  && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN useradd -u 1000 jenkins
+RUN useradd -m -u 1000 jenkins
+
+USER jenkins
