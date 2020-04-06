@@ -13,6 +13,7 @@ RUN \
   apt-get update &&\ 
   apt-get install -y \
     apt-utils \
+    openssh-server \
     python3-pip \
     createrepo \
     debhelper \
