@@ -1,4 +1,4 @@
-FROM ubuntu:19.04
+FROM ubuntu:18.04
 
 LABEL \
   project="https://github.com/jenkins-infra/docker-packaging"
