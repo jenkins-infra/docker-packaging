@@ -35,4 +35,4 @@ USER jenkins
 
 RUN \
   mkdir /home/jenkins/.ssh && \
-  ssh-keyscan -t rsa pkg.jenkins.io >> /home/jenkins/.ssh/known_hosts
+  ssh-keyscan -t rsa pkg.origin.jenkins.io >> /home/jenkins/.ssh/known_hosts
