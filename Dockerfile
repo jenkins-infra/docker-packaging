@@ -30,7 +30,7 @@ RUN \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV JV_VERSION=0.0.3
-RUN curl -o jenkins-version-linux-amd64.tar.gz -L https://github.com/garethjevans/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-amd64.tar.gz && \
+RUN curl -o jenkins-version-linux-amd64.tar.gz -L https://github.com/jenkins-infra/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-amd64.tar.gz && \
   tar xvfz jenkins-version-linux-amd64.tar.gz && \
   mv jv /usr/local/bin && \
   rm jenkins-version-linux-amd64.tar.gz && \
