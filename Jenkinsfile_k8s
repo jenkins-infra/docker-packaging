@@ -1,0 +1,22 @@
+parallel(
+  failFast: true,
+  'docker-image': {
+    // Do not rebuild the image when triggered by a periodic job 
+    if (!currentBuild.getBuildCauses().contains("hudson.triggers.TimerTrigger")){
+      buildDockerAndPublishImage('packaging', [
+        mainBranch: 'main',
+        automaticSemanticVersioning: true,
+        gitCredentials: 'github-app-infra'
+      ])  
+    }   
+  },  
+  'updatecli': {
+    withCredentials([string(credentialsId: 'updatecli-github-token', variable: 'UPDATECLI_GITHUB_TOKEN')]) {
+      updatecli(action: 'diff')
+      if (env.BRANCH_NAME == 'main') {
+        updatecli(action: 'apply', cronTriggerExpression: '@weekly')
+      }   
+    }   
+  },  
+)
+
