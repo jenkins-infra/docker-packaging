@@ -15,14 +15,15 @@ RUN \
   apt-get update &&\
   apt-get install --yes --no-install-recommends \
     apt-utils \
-    openssh-server \
-    python3-pip \
     createrepo \
+    curl \
     debhelper \
     devscripts \
     expect \
     make \
     maven \
+    openssh-server \
+    python3-pip \
     rpm \
     rsync \
     tzdata \
