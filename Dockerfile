@@ -9,24 +9,27 @@ ENV TZ=UTC
 COPY ./conf.d/rpm_macros /etc/rpm/macros
 COPY ./conf.d/devscripts.conf /etc/devscripts.conf
 
+## Always install the latest package and pip versions
+# hadolint ignore=DL3008,DL3013
 RUN \
-  apt-get update &&\ 
-  apt-get install -y \
+  apt-get update &&\
+  apt-get install --yes --no-install-recommends \
     apt-utils \
-    openssh-server \
-    python3-pip \
     createrepo \
+    curl \
     debhelper \
     devscripts \
     expect \
     make \
     maven \
+    openssh-server \
+    python3-pip \
     rpm \
     rsync \
     tzdata \
     unzip &&\
-  apt-get clean &&\ 
-  pip3 install jinja2  && \
+  apt-get clean &&\
+  pip3 install --no-cache-dir jinja2  && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG JV_VERSION=0.0.3
@@ -36,9 +39,10 @@ RUN curl -o jenkins-version-linux-amd64.tar.gz -L https://github.com/jenkins-inf
   rm jenkins-version-linux-amd64.tar.gz && \
   jv --version
 
-RUN useradd -m -u 1000 jenkins
+ARG JENKINS_USERNAME=jenkins
+RUN useradd -m -u 1000 "${JENKINS_USERNAME}"
 
-USER jenkins
+USER $JENKINS_USERNAME
 
 RUN \
   mkdir /home/jenkins/.ssh && \
