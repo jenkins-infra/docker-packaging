@@ -32,7 +32,7 @@ RUN \
   pip3 install --no-cache-dir jinja2  && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ARG JV_VERSION=0.0.3
+ARG JV_VERSION=0.2.0
 RUN curl -o jenkins-version-linux-amd64.tar.gz -L https://github.com/jenkins-infra/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-amd64.tar.gz && \
   tar xvfz jenkins-version-linux-amd64.tar.gz && \
   mv jv /usr/local/bin && \
