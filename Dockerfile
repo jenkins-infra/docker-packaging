@@ -22,6 +22,7 @@ RUN \
     expect \
     git \
     gpg \
+    gpg-agent \
     make \
     maven \
     openssh-server \
