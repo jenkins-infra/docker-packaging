@@ -20,6 +20,7 @@ RUN \
     debhelper \
     devscripts \
     expect \
+    git \
     gpg \
     make \
     maven \
