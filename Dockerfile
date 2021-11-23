@@ -25,6 +25,7 @@ RUN \
     make \
     maven \
     openssh-server \
+    openssl \
     python3-pip \
     rpm \
     rsync \
