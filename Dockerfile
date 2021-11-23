@@ -20,6 +20,7 @@ RUN \
     debhelper \
     devscripts \
     expect \
+    gpg \
     make \
     maven \
     openssh-server \
