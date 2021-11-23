@@ -20,6 +20,7 @@ RUN \
     debhelper \
     devscripts \
     expect \
+    fakeroot \
     git \
     gpg \
     gpg-agent \
