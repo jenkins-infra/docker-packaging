@@ -1,7 +1,6 @@
 FROM ubuntu:18.04
 
-LABEL \
-  project="https://github.com/jenkins-infra/docker-packaging"
+LABEL project="https://github.com/jenkins-infra/docker-packaging"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
@@ -17,6 +16,7 @@ RUN \
     apt-utils \
     createrepo \
     curl \
+    build-essential \
     debhelper \
     devscripts \
     expect \
