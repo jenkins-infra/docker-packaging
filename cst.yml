@@ -1,0 +1,63 @@
+schemaVersion: 2.0.0
+
+metadataTest:
+  env:
+    - key: DEBIAN_FRONTEND
+      value: noninteractive
+    - key: TZ
+      value: UTC
+  labels:
+    - key: 'project'
+      value: 'https://github.com/jenkins-infra/docker-packaging'
+  user: jenkins
+
+fileExistenceTests:
+  - name: 'RPM Macros'
+    path: '/etc/rpm/macros'
+    shouldExist: true
+  - name: 'Debian devscript manifest'
+    path: '/etc/devscripts.conf'
+    shouldExist: true
+  - name: "Default user's home"
+    path: '/home/jenkins'
+    shouldExist: true
+  - name: "SSH known hosts"
+    path: '/home/jenkins/.ssh/known_hosts'
+    shouldExist: true
+  # CLI binaries
+  - name: 'Bash'
+    path: '/bin/bash'
+    shouldExist: true
+    isExecutableBy: 'any'
+  - name: 'Git'
+    path: '/usr/bin/git'
+    shouldExist: true
+    isExecutableBy: 'any'
+  - name: 'Fakeroot'
+    path: '/usr/bin/fakeroot'
+    shouldExist: true
+    isExecutableBy: 'any'
+  - name: 'GPG'
+    path: '/usr/bin/gpg'
+    shouldExist: true
+    isExecutableBy: 'any'
+  - name: 'GPG Agent'
+    path: '/usr/bin/gpg-agent'
+    shouldExist: true
+    isExecutableBy: 'any'
+  - name: 'Make'
+    path: '/usr/bin/make'
+    shouldExist: true
+    isExecutableBy: 'any'
+  - name: 'Curl'
+    path: '/usr/bin/curl'
+    shouldExist: true
+    isExecutableBy: 'any'
+  - name: 'JV'
+    path: '/usr/local/bin/jv'
+    shouldExist: true
+    isExecutableBy: 'any'
+  - name: 'G++ from build-essential'
+    path: '/usr/bin/g++'
+    shouldExist: true
+    isExecutableBy: 'any'
