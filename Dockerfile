@@ -101,6 +101,15 @@ RUN apt-get update \
   && echo "JAVA_HOME=${JAVA_HOME}" >> /etc/environment \
   && java -version
 
+## Maven is required for Debian packaging step (at least)
+ARG MAVEN_VERSION=3.8.4
+RUN curl --fail --silent --location --show-error --output "/tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+  "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+  && tar zxf "/tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -C /usr/share/ \
+  && ln -s "/usr/share/apache-maven-${MAVEN_VERSION}/bin/mvn" /usr/local/bin/mvn \
+  && rm -f "/tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+  && mvn -version
+
 ## We need some files from the official jenkins-agent image
 COPY --from=jenkins-agent /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
 COPY --from=jenkins-agent /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-agent
