@@ -1,5 +1,13 @@
-FROM ubuntu:18.04
+ARG JX_RELEASE_VERSION=2.5.1
+ARG JENKINS_AGENT_VERSION=4.11.2-2
 
+FROM ghcr.io/jenkins-x/jx-release-version:${JX_RELEASE_VERSION} AS jx-release-version
+FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk11 AS jenkins-agent
+
+## Ubuntu 18.04 is required only for the package `createrepo` (https://packages.ubuntu.com/bionic/createrepo - version 0.10.3-1)
+## Switching to Debian, or Ubuntu 20+ requires to use `createrepo_c` (https://github.com/rpm-software-management/createrepo_c - version 0.18.0 latest)
+FROM ubuntu:18.04
+SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 LABEL project="https://github.com/jenkins-infra/docker-packaging"
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -10,9 +18,8 @@ COPY ./conf.d/devscripts.conf /etc/devscripts.conf
 
 ## Always install the latest package and pip versions
 # hadolint ignore=DL3008,DL3013
-RUN \
-  apt-get update &&\
-  apt-get install --yes --no-install-recommends \
+RUN apt-get update \
+  && apt-get install --yes --no-install-recommends \
     apt-utils \
     createrepo \
     curl \
@@ -25,17 +32,16 @@ RUN \
     gpg \
     gpg-agent \
     make \
-    maven \
     openssh-server \
     openssl \
     python3-pip \
     rpm \
     rsync \
     tzdata \
-    unzip &&\
-  apt-get clean &&\
-  pip3 install --no-cache-dir jinja2  && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    unzip \
+  && apt-get clean \
+  && pip3 install --no-cache-dir jinja2 \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG JV_VERSION=0.2.0
 RUN curl -o jenkins-version-linux-amd64.tar.gz -L https://github.com/jenkins-infra/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-amd64.tar.gz && \
@@ -44,11 +50,78 @@ RUN curl -o jenkins-version-linux-amd64.tar.gz -L https://github.com/jenkins-inf
   rm jenkins-version-linux-amd64.tar.gz && \
   jv --version
 
+ARG GH_VERSION=2.4.0
+RUN curl --silent --show-error --location --output /tmp/gh.tar.gz \
+    "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" \
+  && tar xvfz /tmp/gh.tar.gz -C /tmp \
+  && mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh /usr/local/bin/gh \
+  && chmod a+x /usr/local/bin/gh \
+  && gh --help
+
+ARG AZURE_CLI_VERSION=2.0.59
+## Always install the latest package and pip versions
+# hadolint ignore=DL3008,DL3013
+RUN apt-get update \
+  && apt-get install --yes --no-install-recommends \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release \
+  && curl --silent --show-error --location https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null \
+  && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list \
+  && apt-get update \
+  && apt-get install --yes --no-install-recommends azure-cli="${AZURE_CLI_VERSION}-1~$(lsb_release -cs)" \
+  && az --version \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+## Repeating the ARGs from top level to allow them on this scope
+ARG JX_RELEASE_VERSION=2.5.1
+COPY --from=jx-release-version /usr/bin/jx-release-version /usr/bin/jx-release-version
+
+## Install JDK11 to allow the jenkins-agent to start
+ARG JDK11_VERSION=11.0.13+8
+ENV JAVA_HOME=/opt/jdk-11
+## Always install the latest package and pip versions
+# hadolint ignore=DL3008,DL3013
+RUN apt-get update \
+  ## Prevent Java null pointer exception due to missing fontconfig
+  && apt-get install --yes --no-install-recommends fontconfig \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && mkdir -p "${JAVA_HOME}" \
+  && jdk11_short_version="${JDK11_VERSION//+/_}" \
+  && curl --silent --show-error --location --output /tmp/jdk11.tgz \
+    "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-${JDK11_VERSION}/OpenJDK11U-jdk_x64_linux_hotspot_${jdk11_short_version}.tar.gz" \
+  && tar xzf /tmp/jdk11.tgz --strip-components=1 -C "${JAVA_HOME}" \
+  # Define JDK11 installation as the default system JDK (weight is the JDK major version to ensure latest JDK is the default)
+  && update-alternatives --install /usr/bin/java java "${JAVA_HOME}"/bin/java 11 \
+  # Ensure JAVA_HOME variable is availabel to all shells
+  && echo "JAVA_HOME=${JAVA_HOME}" >> /etc/environment \
+  && java -version
+
+## We need some files from the official jenkins-agent image
+COPY --from=jenkins-agent /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
+COPY --from=jenkins-agent /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-agent
+
+# Create default user (must be the same as the official jenkins-agent image)
 ARG JENKINS_USERNAME=jenkins
+ENV USER=${JENKINS_USERNAME}
+ENV HOME=/home/"${JENKINS_USERNAME}"
 RUN useradd -m -u 1000 "${JENKINS_USERNAME}"
 
 USER $JENKINS_USERNAME
 
-RUN \
-  mkdir /home/jenkins/.ssh && \
-  ssh-keyscan -t rsa pkg.origin.jenkins.io >> /home/jenkins/.ssh/known_hosts
+RUN mkdir "${HOME}"/.ssh \
+  && ssh-keyscan -t rsa pkg.origin.jenkins.io >> "${HOME}"/.ssh/known_hosts
+
+LABEL io.jenkins-infra.tools="createrepo,bash,debhelper,fakeroot,git,gpg,gh,jx-release-version,java,jv,jenkins-agent,make"
+LABEL io.jenkins-infra.tools.gh.version="${GH_VERSION}"
+LABEL io.jenkins-infra.tools.jx-release-version.version="${JX_RELEASE_VERSION}"
+LABEL io.jenkins-infra.tools.jenkins-agent.version="${JENKINS_AGENT_VERSION}"
+LABEL io.jenkins-infra.tools.java.version="${JDK11_VERSION}"
+LABEL io.jenkins-infra.tools.jv.version="${JV_VERSION}"
+
+
+ENTRYPOINT ["/usr/local/bin/jenkins-agent"]
