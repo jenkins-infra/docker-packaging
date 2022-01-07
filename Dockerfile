@@ -13,9 +13,6 @@ LABEL project="https://github.com/jenkins-infra/docker-packaging"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
-COPY ./conf.d/rpm_macros /etc/rpm/macros
-COPY ./conf.d/devscripts.conf /etc/devscripts.conf
-
 ## Always install the latest package and pip versions
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update \
@@ -80,24 +77,48 @@ RUN apt-get update \
 ARG JX_RELEASE_VERSION=2.5.1
 COPY --from=jx-release-version /usr/bin/jx-release-version /usr/bin/jx-release-version
 
-## Install JDK11 to allow the jenkins-agent to start
+## Install JDK11 to for the jenkins-agent (same JDK version as the controller)
 ARG JDK11_VERSION=11.0.13+8
-ENV JAVA_HOME=/opt/jdk-11
-## Always install the latest package and pip versions
-# hadolint ignore=DL3008,DL3013
+ARG JDK11_HOME=/opt/jdk-11
+## Always install the latest packages
+# hadolint ignore=DL3008
 RUN apt-get update \
   ## Prevent Java null pointer exception due to missing fontconfig
   && apt-get install --yes --no-install-recommends fontconfig \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-  && mkdir -p "${JAVA_HOME}" \
+  && mkdir -p "${JDK11_HOME}" \
   && jdk11_short_version="${JDK11_VERSION//+/_}" \
   && curl --silent --show-error --location --output /tmp/jdk11.tgz \
     "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-${JDK11_VERSION}/OpenJDK11U-jdk_x64_linux_hotspot_${jdk11_short_version}.tar.gz" \
-  && tar xzf /tmp/jdk11.tgz --strip-components=1 -C "${JAVA_HOME}" \
-  # Define JDK11 installation as the default system JDK (weight is the JDK major version to ensure latest JDK is the default)
-  && update-alternatives --install /usr/bin/java java "${JAVA_HOME}"/bin/java 11 \
-  # Ensure JAVA_HOME variable is availabel to all shells
+  && tar xzf /tmp/jdk11.tgz --strip-components=1 -C "${JDK11_HOME}" \
+  && rm -f /tmp/jdk11.tgz \
+  # Declare this installation to update-alternatives with the weight of its major version (so by default, most recent is the default unless changed later)
+  && update-alternatives --install /usr/bin/java java "${JDK11_HOME}"/bin/java 11
+
+ARG JDK8_VERSION="8u312-b07"
+ARG JDK8_HOME=/opt/jdk-8
+## Always install the latest packages
+# hadolint ignore=DL3008
+RUN apt-get update \
+  ## Prevent Java null pointer exception due to missing fontconfig
+  && apt-get install --yes --no-install-recommends fontconfig \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && mkdir -p "${JDK8_HOME}" \
+  && jdk8_short_version="${JDK8_VERSION//-/}" \
+  && curl --silent --show-error --location --output /tmp/jdk8.tgz \
+    "https://github.com/adoptium/temurin8-binaries/releases/download/jdk${JDK8_VERSION}/OpenJDK8U-jdk_x64_linux_hotspot_${jdk8_short_version}.tar.gz" \
+  && tar xzf /tmp/jdk8.tgz --strip-components=1 -C "${JDK8_HOME}" \
+  && rm -f /tmp/jdk8.tgz \
+  # Declare this installation to update-alternatives with the weight of its major version (so by default, most recent is the default unless changed later)
+  && update-alternatives --install /usr/bin/java java "${JDK8_HOME}"/bin/java 8
+
+## Define the default java to be used
+ENV JAVA_HOME="${JDK8_HOME}"
+## Use 1000 to be sure weight is always the bigger
+RUN update-alternatives --install /usr/bin/java java "${JAVA_HOME}"/bin/java 1000 \
+# Ensure JAVA_HOME variable is availabel to all shells
   && echo "JAVA_HOME=${JAVA_HOME}" >> /etc/environment \
   && java -version
 
@@ -113,6 +134,10 @@ RUN curl --fail --silent --location --show-error --output "/tmp/apache-maven-${M
 ## We need some files from the official jenkins-agent image
 COPY --from=jenkins-agent /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
 COPY --from=jenkins-agent /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-agent
+
+## Copy packaging-specific RPM macros
+COPY ./conf.d/rpm_macros /etc/rpm/macros
+COPY ./conf.d/devscripts.conf /etc/devscripts.conf
 
 # Create default user (must be the same as the official jenkins-agent image)
 ARG JENKINS_USERNAME=jenkins
