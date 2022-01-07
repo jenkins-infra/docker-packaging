@@ -1,0 +1,4 @@
+hadolint.json
+*.tar
+.git
+.github
