@@ -4,7 +4,7 @@ ARG JENKINS_AGENT_VERSION=4.11.2-3
 # https://github.com/jenkinsci/docker-inbound-agent/blob/master/11/windows/windowsservercore-ltsc2019/Dockerfile - inbound agent (from base agent)
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk11-nanoserver-1809 AS jenkins-agent
 
-FROM mcr.microsoft.com/dotnet/framework/sdk:3.5-windowsservercore-ltsc2019 as dotnet
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019 as dotnet
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 # Copy JDK installation
