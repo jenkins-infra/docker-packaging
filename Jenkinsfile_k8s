@@ -1,1 +1,21 @@
-parallelDockerUpdatecli([imageName: 'packaging', rebuildImageOnPeriodicJob: false])
+dockerImageName = 'packaging'
+
+parallel([
+  "linux-amd64": {
+    parallelDockerUpdatecli([imageName: dockerImageName, rebuildImageOnPeriodicJob: false])
+  },
+  "windows-amd64": {
+    node('windows-amd64-docker') {
+      withCredentials([usernamePassword(credentialsId: 'jenkins-dockerhub', passwordVariable: 'DOCKER_REGISTRY_PSW', usernameVariable: 'DOCKER_REGISTRY_USR')]) {
+        stage("Prepare ${dockerImageName}") {
+          checkout scm
+          // Logging in on the Dockerhub helps to avoid request limit from DockerHub
+          bat 'docker login --username %DOCKER_REGISTRY_USR% --password %DOCKER_REGISTRY_PSW%'
+        } // withCredentials
+        stage("Build ${dockerImageName}") {
+          bat 'docker build -t jenkinsciinfra/packaging:windows ./windows/'
+        } //stage
+      }
+    }
+  }
+])
