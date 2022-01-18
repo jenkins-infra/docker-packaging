@@ -32,6 +32,8 @@ RUN apt-get update \
     openssh-server \
     openssl \
     python3-pip \
+    python3-pytest \
+    python3-venv \
     rpm \
     rsync \
     tzdata \
