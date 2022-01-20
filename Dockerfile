@@ -12,6 +12,7 @@ LABEL project="https://github.com/jenkins-infra/docker-packaging"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
+ENV LANG C.UTF-8
 
 ## Always install the latest package and pip versions
 # hadolint ignore=DL3008,DL3013
