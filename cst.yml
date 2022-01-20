@@ -11,6 +11,14 @@ metadataTest:
       value: 'https://github.com/jenkins-infra/docker-packaging'
   user: jenkins
 
+commandTests:
+  - name: "has a UTF-8 locale"
+    command: "bash"
+    args:
+      - -c
+      - |
+         locale | grep UTF-8
+
 fileExistenceTests:
   - name: 'RPM Macros'
     path: '/etc/rpm/macros'
