@@ -119,10 +119,12 @@ RUN apt-get update \
 
 ## Define the default java to be used
 ENV JAVA_HOME="${JDK8_HOME}"
+ENV PATH "${JAVA_HOME}/bin:$PATH"
 ## Use 1000 to be sure weight is always the bigger
 RUN update-alternatives --install /usr/bin/java java "${JAVA_HOME}"/bin/java 1000 \
 # Ensure JAVA_HOME variable is availabel to all shells
   && echo "JAVA_HOME=${JAVA_HOME}" >> /etc/environment \
+  && echo "PATH=${JAVA_HOME}/bin:$PATH" >> /etc/environment \
   && java -version
 
 ## Maven is required for Debian packaging step (at least)
