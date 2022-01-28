@@ -143,6 +143,7 @@ COPY --from=jenkins-agent /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-ag
 ## Copy packaging-specific RPM macros
 COPY ./conf.d/rpm_macros /etc/rpm/macros
 COPY ./conf.d/devscripts.conf /etc/devscripts.conf
+COPY ./macros.d/macros.systemd /usr/lib/rpm/macros.d/macros.systemd
 
 # Create default user (must be the same as the official jenkins-agent image)
 ARG JENKINS_USERNAME=jenkins
