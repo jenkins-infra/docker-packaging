@@ -1,1 +1,1 @@
-parallelDockerUpdatecli([imageName: 'packaging', rebuildImageOnPeriodicJob: false])
+parallelDockerUpdatecli([imageName: 'packaging', rebuildImageOnPeriodicJob: false, buildDockerConfig: [useContainer: false]])
