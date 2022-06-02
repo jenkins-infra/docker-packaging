@@ -1,5 +1,5 @@
 ARG JX_RELEASE_VERSION=2.5.1
-ARG JENKINS_AGENT_VERSION=4.11.2-2
+ARG JENKINS_AGENT_VERSION=4.13-2
 
 FROM ghcr.io/jenkins-x/jx-release-version:${JX_RELEASE_VERSION} AS jx-release-version
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk11 AS jenkins-agent
@@ -60,9 +60,8 @@ RUN curl --silent --show-error --location --output /tmp/gh.tar.gz \
   && chmod a+x /usr/local/bin/gh \
   && gh --help
 
-ARG AZURE_CLI_VERSION=2.32.0
+ARG AZURE_CLI_VERSION=2.37.0
 ## Always install the latest package and pip versions
-## TODO: Remove the "sed -e 's/jammy/hirsute/g'" below once Microsoft publishes packages for Ubuntu 22.04.
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
@@ -72,9 +71,9 @@ RUN apt-get update \
     gnupg \
     lsb-release \
   && curl --silent --show-error --location https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null \
-  && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs | sed -e 's/jammy/hirsute/g') main" | tee /etc/apt/sources.list.d/azure-cli.list \
+  && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list \
   && apt-get update \
-  && apt-get install --yes --no-install-recommends azure-cli="${AZURE_CLI_VERSION}-1~$(lsb_release -cs | sed -e 's/jammy/hirsute/g')" \
+  && apt-get install --yes --no-install-recommends azure-cli="${AZURE_CLI_VERSION}-1~$(lsb_release -cs)" \
   && az --version \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
