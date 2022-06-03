@@ -1,12 +1,10 @@
 ARG JX_RELEASE_VERSION=2.5.1
-ARG JENKINS_AGENT_VERSION=4.11.2-2
+ARG JENKINS_AGENT_VERSION=4.13-2
 
 FROM ghcr.io/jenkins-x/jx-release-version:${JX_RELEASE_VERSION} AS jx-release-version
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk11 AS jenkins-agent
 
-## Ubuntu 18.04 is required only for the package `createrepo` (https://packages.ubuntu.com/bionic/createrepo - version 0.10.3-1)
-## Switching to Debian, or Ubuntu 20+ requires to use `createrepo_c` (https://github.com/rpm-software-management/createrepo_c - version 0.18.0 latest)
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 LABEL project="https://github.com/jenkins-infra/docker-packaging"
 
@@ -15,11 +13,14 @@ ENV TZ=UTC
 ENV LANG C.UTF-8
 
 ## Always install the latest package and pip versions
+## TODO: Remove the "ln -s /usr/bin/createrepo_c /usr/bin/createrepo" call
+## below once all consumers have been migrated from "createrepo" to
+## "createrepo_c".
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
     apt-utils \
-    createrepo \
+    createrepo-c \
     curl \
     build-essential \
     debhelper \
@@ -39,6 +40,7 @@ RUN apt-get update \
     rsync \
     tzdata \
     unzip \
+  && ln -s /usr/bin/createrepo_c /usr/bin/createrepo \
   && apt-get clean \
   && pip3 install --no-cache-dir jinja2 \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -58,7 +60,7 @@ RUN curl --silent --show-error --location --output /tmp/gh.tar.gz \
   && chmod a+x /usr/local/bin/gh \
   && gh --help
 
-ARG AZURE_CLI_VERSION=2.0.59
+ARG AZURE_CLI_VERSION=2.37.0
 ## Always install the latest package and pip versions
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update \
