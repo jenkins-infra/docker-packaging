@@ -46,17 +46,17 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG JV_VERSION=0.2.0
-RUN curl -o jenkins-version-linux-amd64.tar.gz -L https://github.com/jenkins-infra/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-amd64.tar.gz && \
-  tar xvfz jenkins-version-linux-amd64.tar.gz && \
+RUN curl -o "jenkins-version-linux-$(dpkg --print-architecture).tar.gz" -L "https://github.com/jenkins-infra/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-$(dpkg --print-architecture).tar.gz" && \
+  tar xvfz "jenkins-version-linux-$(dpkg --print-architecture).tar.gz" && \
   mv jv /usr/local/bin && \
-  rm jenkins-version-linux-amd64.tar.gz && \
+  rm "jenkins-version-linux-$(dpkg --print-architecture).tar.gz" && \
   jv --version
 
-ARG GH_VERSION=2.4.0
+ARG GH_VERSION=2.11.3
 RUN curl --silent --show-error --location --output /tmp/gh.tar.gz \
-    "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" \
+    "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_$(dpkg --print-architecture).tar.gz" \
   && tar xvfz /tmp/gh.tar.gz -C /tmp \
-  && mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh /usr/local/bin/gh \
+  && mv "/tmp/gh_${GH_VERSION}_linux_$(dpkg --print-architecture)/bin/gh" /usr/local/bin/gh \
   && chmod a+x /usr/local/bin/gh \
   && gh --help
 
@@ -71,10 +71,11 @@ RUN apt-get update \
     gnupg \
     lsb-release \
   && curl --silent --show-error --location https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null \
+  # hardcoded to amd64 due to https://github.com/Azure/azure-cli/issues/7368
   && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list \
   && apt-get update \
   && apt-get install --yes --no-install-recommends azure-cli="${AZURE_CLI_VERSION}-1~$(lsb_release -cs)" \
-  && az --version \
+  && az --version || echo 'this will currently fail on non amd64 architectures' \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -82,46 +83,18 @@ RUN apt-get update \
 ARG JX_RELEASE_VERSION=2.5.1
 COPY --from=jx-release-version /usr/bin/jx-release-version /usr/bin/jx-release-version
 
-## Install JDK11 to for the jenkins-agent (same JDK version as the controller)
-ARG JDK11_VERSION=11.0.13+8
-ARG JDK11_HOME=/opt/jdk-11
 ## Always install the latest packages
 # hadolint ignore=DL3008
 RUN apt-get update \
   ## Prevent Java null pointer exception due to missing fontconfig
   && apt-get install --yes --no-install-recommends fontconfig \
   && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-  && mkdir -p "${JDK11_HOME}" \
-  && jdk11_short_version="${JDK11_VERSION//+/_}" \
-  && curl --silent --show-error --location --output /tmp/jdk11.tgz \
-    "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-${JDK11_VERSION}/OpenJDK11U-jdk_x64_linux_hotspot_${jdk11_short_version}.tar.gz" \
-  && tar xzf /tmp/jdk11.tgz --strip-components=1 -C "${JDK11_HOME}" \
-  && rm -f /tmp/jdk11.tgz \
-  # Declare this installation to update-alternatives with the weight of its major version (so by default, most recent is the default unless changed later)
-  && update-alternatives --install /usr/bin/java java "${JDK11_HOME}"/bin/java 11
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ARG JDK8_VERSION="8u312-b07"
-ARG JDK8_HOME=/opt/jdk-8
-## Always install the latest packages
-# hadolint ignore=DL3008
-RUN apt-get update \
-  ## Prevent Java null pointer exception due to missing fontconfig
-  && apt-get install --yes --no-install-recommends fontconfig \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-  && mkdir -p "${JDK8_HOME}" \
-  && jdk8_short_version="${JDK8_VERSION//-/}" \
-  && curl --silent --show-error --location --output /tmp/jdk8.tgz \
-    "https://github.com/adoptium/temurin8-binaries/releases/download/jdk${JDK8_VERSION}/OpenJDK8U-jdk_x64_linux_hotspot_${jdk8_short_version}.tar.gz" \
-  && tar xzf /tmp/jdk8.tgz --strip-components=1 -C "${JDK8_HOME}" \
-  && rm -f /tmp/jdk8.tgz \
-  # Declare this installation to update-alternatives with the weight of its major version (so by default, most recent is the default unless changed later)
-  && update-alternatives --install /usr/bin/java java "${JDK8_HOME}"/bin/java 8
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH "${JAVA_HOME}/bin:${PATH}"
+COPY --from=jenkins-agent $JAVA_HOME $JAVA_HOME
 
-## Define the default java to be used
-ENV JAVA_HOME="${JDK8_HOME}"
-ENV PATH "${JAVA_HOME}/bin:$PATH"
 ## Use 1000 to be sure weight is always the bigger
 RUN update-alternatives --install /usr/bin/java java "${JAVA_HOME}"/bin/java 1000 \
 # Ensure JAVA_HOME variable is availabel to all shells
@@ -162,7 +135,6 @@ LABEL io.jenkins-infra.tools="createrepo,bash,debhelper,fakeroot,git,gpg,gh,jx-r
 LABEL io.jenkins-infra.tools.gh.version="${GH_VERSION}"
 LABEL io.jenkins-infra.tools.jx-release-version.version="${JX_RELEASE_VERSION}"
 LABEL io.jenkins-infra.tools.jenkins-agent.version="${JENKINS_AGENT_VERSION}"
-LABEL io.jenkins-infra.tools.java.version="${JDK11_VERSION}"
 LABEL io.jenkins-infra.tools.jv.version="${JV_VERSION}"
 
 
