@@ -30,6 +30,7 @@ RUN apt-get update \
     git \
     gpg \
     gpg-agent \
+    gnupg2 \
     make \
     openssh-server \
     openssl \
