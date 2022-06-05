@@ -77,7 +77,7 @@ RUN apt-get update \
   && SODIUM_INSTALL="system" python3 -m pip install --no-cache-dir pynacl \
   # switch back to the package manager version once https://github.com/Azure/azure-cli/issues/7368 is resolved
   && python3 -m pip install --no-cache-dir azure-cli=="${AZURE_CLI_VERSION}" \
-  && az --version || echo 'this will currently fail on non amd64 architectures' \
+  && az --version \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
