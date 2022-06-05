@@ -71,11 +71,12 @@ RUN apt-get update \
     curl \
     gnupg \
     lsb-release \
-  && curl --silent --show-error --location https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null \
-  # hardcoded to amd64 due to https://github.com/Azure/azure-cli/issues/7368
-  && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list \
-  && apt-get update \
-  && apt-get install --yes --no-install-recommends azure-cli="${AZURE_CLI_VERSION}-1~$(lsb_release -cs)" \
+    libffi-dev \
+    libsodium-dev \
+    python3-dev \
+  && SODIUM_INSTALL="system" python3 -m pip install --no-cache-dir pynacl \
+  # switch back to the package manager version once https://github.com/Azure/azure-cli/issues/7368 is resolved
+  && python3 -m pip install --no-cache-dir azure-cli=="${AZURE_CLI_VERSION}" \
   && az --version || echo 'this will currently fail on non amd64 architectures' \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
