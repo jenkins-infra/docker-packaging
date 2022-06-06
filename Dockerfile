@@ -13,9 +13,6 @@ ENV TZ=UTC
 ENV LANG C.UTF-8
 
 ## Always install the latest package and pip versions
-## TODO: Remove the "ln -s /usr/bin/createrepo_c /usr/bin/createrepo" call
-## below once all consumers have been migrated from "createrepo" to
-## "createrepo_c".
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
@@ -41,7 +38,6 @@ RUN apt-get update \
     rsync \
     tzdata \
     unzip \
-  && ln -s /usr/bin/createrepo_c /usr/bin/createrepo \
   && apt-get clean \
   && pip3 install --no-cache-dir jinja2 \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
