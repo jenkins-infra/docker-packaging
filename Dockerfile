@@ -128,6 +128,8 @@ USER $JENKINS_USERNAME
 
 RUN mkdir "${HOME}"/.ssh \
   && ssh-keyscan -t rsa pkg.origin.jenkins.io >> "${HOME}"/.ssh/known_hosts
+  
+RUN git config --global pull.rebase false
 
 LABEL io.jenkins-infra.tools="createrepo,bash,debhelper,fakeroot,git,gpg,gh,jx-release-version,java,jv,jenkins-agent,make"
 LABEL io.jenkins-infra.tools.gh.version="${GH_VERSION}"
