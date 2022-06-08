@@ -17,7 +17,6 @@ ENV LANG C.UTF-8
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
     apt-utils \
-    createrepo-c \
     curl \
     build-essential \
     debhelper \
@@ -131,7 +130,7 @@ RUN mkdir "${HOME}"/.ssh \
   
 RUN git config --global pull.rebase false
 
-LABEL io.jenkins-infra.tools="createrepo,bash,debhelper,fakeroot,git,gpg,gh,jx-release-version,java,jv,jenkins-agent,make"
+LABEL io.jenkins-infra.tools="bash,debhelper,fakeroot,git,gpg,gh,jx-release-version,java,jv,jenkins-agent,make"
 LABEL io.jenkins-infra.tools.gh.version="${GH_VERSION}"
 LABEL io.jenkins-infra.tools.jx-release-version.version="${JX_RELEASE_VERSION}"
 LABEL io.jenkins-infra.tools.jenkins-agent.version="${JENKINS_AGENT_VERSION}"
