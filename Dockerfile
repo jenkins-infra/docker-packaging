@@ -1,7 +1,6 @@
-ARG JX_RELEASE_VERSION=2.5.1
+ARG JX_RELEASE_VERSION=2.5.2
 ARG JENKINS_AGENT_VERSION=4.13-2
 
-FROM ghcr.io/jenkins-x/jx-release-version:${JX_RELEASE_VERSION} AS jx-release-version
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk11 AS jenkins-agent
 
 FROM ubuntu:22.04
@@ -56,6 +55,15 @@ RUN curl --silent --show-error --location --output /tmp/gh.tar.gz \
   && chmod a+x /usr/local/bin/gh \
   && gh --help
 
+## Repeating the ARGs from top level to allow them on this scope
+ARG JX_RELEASE_VERSION=2.5.2
+RUN curl --silent --show-error --location --output /tmp/jx-release-version.tar.gz \
+    "https://github.com/jenkins-x-plugins/jx-release-version/releases/download/v${JX_RELEASE_VERSION}/jx-release-version-linux-$(dpkg --print-architecture).tar.gz" \
+  && tar xvfz /tmp/jx-release-version.tar.gz -C /tmp && ls -artl /tmp \
+  && mv "/tmp/jx-release-version" /usr/bin/ \
+  && chmod a+x /usr/bin/jx-release-version \
+  && jx-release-version --help
+
 ARG AZURE_CLI_VERSION=2.37.0
 ## Always install the latest package and pip versions
 # hadolint ignore=DL3008,DL3013
@@ -75,10 +83,6 @@ RUN apt-get update \
   && az --version \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-## Repeating the ARGs from top level to allow them on this scope
-ARG JX_RELEASE_VERSION=2.5.1
-COPY --from=jx-release-version /usr/bin/jx-release-version /usr/bin/jx-release-version
 
 ## Always install the latest packages
 # hadolint ignore=DL3008
