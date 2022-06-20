@@ -54,7 +54,6 @@ RUN curl --silent --show-error --location --output /tmp/gh.tar.gz \
   && chmod a+x /usr/local/bin/gh \
   && gh --help
 
-## Repeating the ARGs from top level to allow them on this scope
 ARG JX_RELEASE_VERSION=2.5.2
 RUN curl --silent --show-error --location --output /tmp/jx-release-version.tar.gz \
     "https://github.com/jenkins-x-plugins/jx-release-version/releases/download/v${JX_RELEASE_VERSION}/jx-release-version-linux-$(dpkg --print-architecture).tar.gz" \
