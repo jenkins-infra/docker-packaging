@@ -1,4 +1,3 @@
-ARG JX_RELEASE_VERSION=2.5.2
 ARG JENKINS_AGENT_VERSION=4.13-2
 
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk11 AS jenkins-agent
