@@ -59,7 +59,7 @@ RUN curl --silent --show-error --location --output /tmp/gh.tar.gz \
 ARG JX_RELEASE_VERSION=2.5.2
 RUN curl --silent --show-error --location --output /tmp/jx-release-version.tar.gz \
     "https://github.com/jenkins-x-plugins/jx-release-version/releases/download/v${JX_RELEASE_VERSION}/jx-release-version-linux-$(dpkg --print-architecture).tar.gz" \
-  && tar xvfz /tmp/jx-release-version.tar.gz -C /tmp && ls -artl /tmp \
+  && tar xvfz /tmp/jx-release-version.tar.gz -C /tmp \
   && mv "/tmp/jx-release-version" /usr/bin/ \
   && chmod a+x /usr/bin/jx-release-version \
   && jx-release-version --help
