@@ -1,0 +1,67 @@
+---
+title: "[jenkins-agent-version] Bump jenkins-agent version"
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  lastVersion:
+    kind: githubrelease
+    name: Get the latest jenkins-agent docker-inbound-agent version
+    spec:
+      owner: "jenkinsci"
+      repository: "docker-inbound-agent"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versionFilter:
+        kind: latest
+
+conditions:
+  testDockerfile:
+    name: "Does the Dockerfile have an ARG instruction which key is JENKINS_AGENT_VERSION?"
+    kind: dockerfile
+    disablesourceinput: true
+    spec:
+      file: Dockerfile
+      instruction:
+        keyword: "ARG"
+        matcher: "JENKINS_AGENT_VERSION"
+  checkDockerImagePublished:
+    name: "Is latest dockerfile docker-inbound-agent image published?"
+    kind: dockerimage
+    sourceid: lastVersion
+    spec:
+      image: "jenkins/inbound-agent"
+      architecture: "amd64"
+      ## tag comes from the source
+
+targets:
+  updateDockerfileVersion:
+    name: "Update the value of ARG JENKINS_AGENT_VERSION in the Dockerfile"
+    sourceid: lastVersion
+    kind: dockerfile
+    spec:
+      file: Dockerfile
+      instruction:
+        keyword: "ARG"
+        matcher: "JENKINS_AGENT_VERSION"
+    scmid: default
+
+pullrequests:
+  default:
+    kind: github
+    scmid: default
+    targets:
+      - updateDockerfileVersion
+    spec:
+      labels:
+        - dependencies
