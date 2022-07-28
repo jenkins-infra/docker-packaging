@@ -65,3 +65,4 @@ pullrequests:
     spec:
       labels:
         - dependencies
+        - inbound-agent
