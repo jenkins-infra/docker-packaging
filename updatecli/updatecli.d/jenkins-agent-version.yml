@@ -16,7 +16,7 @@ scms:
 sources:
   lastVersion:
     kind: githubrelease
-    name: Get the latest jenkins-agent docker-inbound-agent version
+    name: Get the latest docker-inbound-agent version
     spec:
       owner: "jenkinsci"
       repository: "docker-inbound-agent"
