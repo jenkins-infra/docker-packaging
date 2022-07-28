@@ -36,7 +36,7 @@ conditions:
         keyword: "ARG"
         matcher: "JENKINS_AGENT_VERSION"
   checkDockerImagePublished:
-    name: "Is latest dockerfile docker-inbound-agent image published?"
+    name: "Is latest docker-inbound-agent image published?"
     kind: dockerimage
     sourceid: lastVersion
     spec:
