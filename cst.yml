@@ -9,8 +9,6 @@ metadataTest:
   labels:
     - key: 'project'
       value: 'https://github.com/jenkins-infra/docker-packaging'
-    - key: io.jenkins-infra.tools
-      value: "bash,debhelper,fakeroot,git,gpg,gh,jx-release-version,java,jv,jenkins-agent,make"
   user: jenkins
 
 fileExistenceTests:
