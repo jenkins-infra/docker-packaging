@@ -2,3 +2,4 @@ _extends: .github
 
 name-template: 'next'
 tag-template: 'next'
+no-changes-template: '* "non-pinned" packages update'
