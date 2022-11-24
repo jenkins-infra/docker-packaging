@@ -1,13 +1,26 @@
----
-title: "[jenkins-version] Update jenkins-version utils version"
+name: Bump `jv` CLI (jenkins-version)
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
 sources:
-  jenkins-version:
-    kind: githubRelease
+  lastVersion:
+    kind: githubrelease
     spec:
       owner: jenkins-infra
       repository: jenkins-version
       token: "{{ requiredEnv .github.token }}"
       username: "{{ .github.username }}"
+
 conditions:
   dockerfileInstruction:
     name: "Does the Dockerfile have an ARG instruction which key is JV_VERSION?"
@@ -17,15 +30,7 @@ conditions:
       instruction:
         keyword: ARG
         matcher: JV_VERSION
-    scm:
-      github:
-        user: "{{ .github.user }}"
-        email: "{{ .github.email }}"
-        owner: "{{ .github.owner }}"
-        repository: "{{ .github.repository }}"
-        token: "{{ requiredEnv .github.token }}"
-        username: "{{ .github.username }}"
-        branch: "{{ .github.branch }}"
+
 targets:
   updateDockerfile:
     name: "Bump JV_VERSION value"
@@ -35,12 +40,15 @@ targets:
       instruction:
         keyword: ARG
         matcher: JV_VERSION
-    scm:
-      github:
-        user: "{{ .github.user }}"
-        email: "{{ .github.email }}"
-        owner: "{{ .github.owner }}"
-        repository: "{{ .github.repository }}"
-        token: "{{ requiredEnv .github.token }}"
-        username: "{{ .github.username }}"
-        branch: "{{ .github.branch }}"
+    scmid: default
+
+
+pullrequests:
+  default:
+    kind: github
+    scmid: default
+    title: Bump `jv` CLI (jenkins-version) to {{ source "lastVersion" }}
+    spec:
+      labels:
+        - dependencies
+        - jv

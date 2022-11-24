@@ -1,5 +1,4 @@
----
-title: "Bump inbound-agent version"
+name: Bump Jenkins inbound-agent version
 
 scms:
   default:
@@ -22,7 +21,7 @@ sources:
       repository: "docker-inbound-agent"
       token: "{{ requiredEnv .github.token }}"
       username: "{{ .github.username }}"
-      versionFilter:
+      versionfilter:
         kind: latest
 
 conditions:
@@ -60,8 +59,7 @@ pullrequests:
   default:
     kind: github
     scmid: default
-    targets:
-      - updateDockerfileVersion
+    title: Bump Jenkins inbound-agent version to {{ source "lastVersion" }}
     spec:
       labels:
         - dependencies
