@@ -42,7 +42,6 @@ targets:
         matcher: JV_VERSION
     scmid: default
 
-
 pullrequests:
   default:
     kind: github
