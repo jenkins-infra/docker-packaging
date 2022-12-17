@@ -1,4 +1,4 @@
-ARG JENKINS_AGENT_VERSION=3077.vd69cf116da_6f-3
+ARG JENKINS_AGENT_VERSION=3077.vd69cf116da_6f-4
 
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk11 AS jenkins-agent
 
