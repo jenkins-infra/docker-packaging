@@ -1,6 +1,6 @@
 ARG JENKINS_AGENT_VERSION=3142.vcfca_0cd92128-1
 
-FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk11 AS jenkins-agent
+FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk17 AS jenkins-agent
 
 FROM ubuntu:22.04
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
@@ -129,7 +129,7 @@ USER $JENKINS_USERNAME
 
 RUN mkdir "${HOME}"/.ssh \
   && ssh-keyscan -t rsa pkg.origin.jenkins.io >> "${HOME}"/.ssh/known_hosts
-  
+
 RUN git config --global pull.rebase false
 
 LABEL io.jenkins-infra.tools="bash,debhelper,fakeroot,git,gpg,gh,jx-release-version,java,jv,jenkins-agent,make"

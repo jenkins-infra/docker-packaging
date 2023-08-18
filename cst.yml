@@ -61,3 +61,9 @@ fileExistenceTests:
     path: '/usr/bin/g++'
     shouldExist: true
     isExecutableBy: 'any'
+
+commandTests:
+  - name: "Check that `java` is present in the PATH and default to JDK17"
+    command: "java"
+    args: ["--version"]
+    expectedOutput: ["Temurin-17"]

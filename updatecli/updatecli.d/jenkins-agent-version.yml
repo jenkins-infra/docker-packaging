@@ -38,6 +38,8 @@ conditions:
     name: "Is latest docker-inbound-agent image published?"
     kind: dockerimage
     sourceid: lastVersion
+    transformers:
+      - addsuffix: "-jdk17"
     spec:
       image: "jenkins/inbound-agent"
       architecture: "amd64"
@@ -55,9 +57,9 @@ targets:
         matcher: "JENKINS_AGENT_VERSION"
     scmid: default
 
-pullrequests:
+actions:
   default:
-    kind: github
+    kind: github/pullrequest
     scmid: default
     title: Bump Jenkins inbound-agent version to {{ source "lastVersion" }}
     spec:
