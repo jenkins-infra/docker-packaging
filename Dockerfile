@@ -1,6 +1,9 @@
 ARG JENKINS_AGENT_VERSION=3142.vcfca_0cd92128-1
+ARG JAVA_VERSION=11.0.20_8
+ARG JENKINS_AGENT_JDK_MAJOR=17
 
-FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk17 AS jenkins-agent
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS jdk
+FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk${JENKINS_AGENT_JDK_MAJOR} AS jenkins-agent
 
 FROM ubuntu:22.04
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
@@ -90,9 +93,10 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV JAVA_HOME=/opt/java/openjdk
+ENV JAVA_HOME=/opt/jdk-11
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
-COPY --from=jenkins-agent $JAVA_HOME $JAVA_HOME
+COPY --from=jenkins-agent /opt/java/openjdk /opt/jdk-17
+COPY --from=jdk /opt/java/openjdk ${JAVA_HOME}
 
 ## Use 1000 to be sure weight is always the bigger
 RUN update-alternatives --install /usr/bin/java java "${JAVA_HOME}"/bin/java 1000 \
