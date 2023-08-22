@@ -63,7 +63,11 @@ fileExistenceTests:
     isExecutableBy: 'any'
 
 commandTests:
-  - name: "Check that `java` is present in the PATH and default to JDK17"
-    command: "java"
+  - name: "Check that `java` binary for agent processes is present and defaults to JDK17"
+    command: "/opt/jdk-17/bin/java"
     args: ["--version"]
     expectedOutput: ["Temurin-17"]
+  - name: "Check that 'maven' and `java` are present in the PATH and default to JDK11 + 3.8.6"
+    command: "mvn"
+    args: ["-v"]
+    expectedOutput: ["Java version: 11.", "3.8.6"]
