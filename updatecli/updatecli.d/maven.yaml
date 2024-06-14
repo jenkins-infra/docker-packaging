@@ -48,6 +48,14 @@ targets:
         keyword: "ARG"
         matcher: "MAVEN_VERSION"
     scmid: default
+  updateCstVersion:
+    name: "Update test harness with new Maven version"
+    sourceid: mavenVersion
+    kind: yaml
+    spec:
+      file: "cst.yml"
+      key: "commandTests[1].expectedOutput[1]"
+    scmid: default
 
 actions:
   default:
@@ -58,4 +66,3 @@ actions:
       labels:
         - dependencies
         - maven
-
