@@ -1,5 +1,4 @@
 schemaVersion: 2.0.0
-
 metadataTest:
   envVars:
     - key: DEBIAN_FRONTEND
@@ -10,7 +9,6 @@ metadataTest:
     - key: 'project'
       value: 'https://github.com/jenkins-infra/docker-packaging'
   user: jenkins
-
 fileExistenceTests:
   - name: 'RPM Macros'
     path: '/etc/rpm/macros'
@@ -61,7 +59,6 @@ fileExistenceTests:
     path: '/usr/bin/g++'
     shouldExist: true
     isExecutableBy: 'any'
-
 commandTests:
   - name: "Check that `java` 17 binary for agent processes is present"
     command: "/opt/jdk-17/bin/java"
@@ -70,4 +67,4 @@ commandTests:
   - name: "Check that 'maven' and `java` are present in the PATH and default to JDK11 + 3.8.6"
     command: "mvn"
     args: ["-v"]
-    expectedOutput: ["Java version: 11.", 3.8.6]
+    expectedOutput: ["Java version: 11.", 3.9.7]
