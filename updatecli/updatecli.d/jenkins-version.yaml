@@ -42,9 +42,9 @@ targets:
         matcher: JV_VERSION
     scmid: default
 
-pullrequests:
+actions:
   default:
-    kind: github
+    kind: github/pullrequest
     scmid: default
     title: Bump `jv` CLI (jenkins-version) to {{ source "lastVersion" }}
     spec:
