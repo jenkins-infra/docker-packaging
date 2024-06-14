@@ -1,0 +1,61 @@
+---
+name: Bump Maven version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  mavenVersion:
+    kind: githubrelease
+    name: Get the latest Maven version
+    spec:
+      owner: "apache"
+      repository: "maven"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versionfilter:
+        kind: regex
+        # Only full releases (semver with "maven-" prefix")
+        pattern: "^maven-(\\d*).(\\d*).(\\d*)$"
+    transformers:
+      - trimprefix: "maven-"
+
+conditions:
+  checkIfReleaseIsAvailable:
+    kind: shell
+    disablesourceinput: true
+    spec:
+      command: curl --connect-timeout 5 --location --head --fail --silent --show-error https://archive.apache.org/dist/maven/maven-3/{{ source `mavenVersion` }}/binaries/apache-maven-{{ source `mavenVersion` }}-bin.tar.gz
+
+
+targets:
+  updateDockerfileVersion:
+    name: "Update the value of ARG MAVEN_VERSION in the Dockerfile"
+    sourceid: mavenVersion
+    kind: dockerfile
+    spec:
+      file: Dockerfile
+      instruction:
+        keyword: "ARG"
+        matcher: "MAVEN_VERSION"
+    scmid: default
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    title: Bump Maven version to {{ source "mavenVersion" }}
+    spec:
+      labels:
+        - dependencies
+        - maven
+
