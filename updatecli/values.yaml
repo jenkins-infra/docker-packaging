@@ -7,3 +7,6 @@ github:
   branch: "main"
   owner: "jenkins-infra"
   repository: "docker-packaging"
+
+jdk:
+  majorVersion: 17
