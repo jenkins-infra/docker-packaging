@@ -1,0 +1,99 @@
+---
+name: Bump JDK17 version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  majorJdkVersion:
+    kind: shell
+    name: Get the major JDK version
+    spec:
+      command: echo "{{ .jdk.majorVersion }}"
+  lastVersion:
+    kind: githubrelease
+    name: Get the latest Adoptium JDK{{ .jdk.majorVersion }} version
+    spec:
+      owner: adoptium
+      repository: "temurin{{ .jdk.majorVersion }}-binaries"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versionfilter:
+        kind: regex
+        pattern: "^jdk-{{ .jdk.majorVersion }}.(\\d*).(\\d*).(\\d*)(.(\\d*))+(\\d*)$"
+    transformers:
+      - trimprefix: "jdk-"
+      - replacer:
+          from: "+"
+          to: "_"
+  jdkTemurinSuffix:
+    kind: file
+    name: Get the (eventual) suffix of the Eclipse Temurin base image
+    spec:
+      file: ./Dockerfile
+      matchpattern: 'FROM eclipse-temurin.*'
+    transformers:
+      - findsubmatch:
+          pattern: 'FROM eclipse-temurin:(.[^-]*)-(.*) AS(.*)'
+          captureindex: 2
+
+conditions:
+  checkDockerImagePublished:
+    name: Check if the Docker image is published
+    kind: dockerimage
+    disablesourceinput: true
+    spec:
+      image: eclipse-temurin
+      architecture: amd64
+      tag: '{{ source `lastVersion` }}-{{ source `jdkTemurinSuffix` }}'
+
+targets:
+  updateDockerfileVersion:
+    name: "Update the value of ARG JAVA_VERSION in the Dockerfile"
+    sourceid: lastVersion
+    kind: dockerfile
+    spec:
+      file: Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: JAVA_VERSION
+    scmid: default
+  updateDockerfileMajorVersion:
+    name: Update the value of ARG BUILD_JDK_MAJOR in the Dockerfile
+    sourceid: majorJdkVersion
+    kind: dockerfile
+    spec:
+      file: Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: BUILD_JDK_MAJOR
+    scmid: default
+  updateTestHarness:
+    name: Update the value of the major JDK version in the test harnes
+    sourceid: majorJdkVersion
+    transformers:
+      - addprefix: '"Java version: '
+      - addsuffix: '."'
+    kind: yaml
+    spec:
+      file: cst.yml
+      key: $.commandTests[1].expectedOutput[0]
+    scmid: default
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    title: Bump JDK{{ .jdk.majorVersion }} version to {{ source "lastVersion" }}
+    spec:
+      labels:
+        - dependencies
+        - "jdk{{ .jdk.majorVersion }}"
