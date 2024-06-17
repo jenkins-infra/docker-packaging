@@ -1,6 +1,7 @@
 ARG JENKINS_AGENT_VERSION=3248.v65ecb_254c298-5
 ARG JAVA_VERSION=11.0.20_8
 ARG JENKINS_AGENT_JDK_MAJOR=17
+ARG BUILD_JDK_MAJOR=11
 
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS jdk
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk${JENKINS_AGENT_JDK_MAJOR} AS jenkins-agent
@@ -93,9 +94,16 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV JAVA_HOME=/opt/jdk-11
+# Repeat ARG to scope it in this stage
+ARG BUILD_JDK_MAJOR
+ENV JAVA_HOME=/opt/jdk-"${BUILD_JDK_MAJOR}"
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
-COPY --from=jenkins-agent /opt/java/openjdk /opt/jdk-17
+
+## Note: when using the same major versions, the temurin JDK overrides the agent JDK.
+##    We need to keep this behavior as both JDK can differ. The long term solution is to switch this image to the "all in one".
+# Repeat ARG to scope it in this stage
+ARG JENKINS_AGENT_JDK_MAJOR
+COPY --from=jenkins-agent /opt/java/openjdk /opt/jdk-"${JENKINS_AGENT_JDK_MAJOR}"
 COPY --from=jdk /opt/java/openjdk ${JAVA_HOME}
 
 ## Use 1000 to be sure weight is always the bigger
