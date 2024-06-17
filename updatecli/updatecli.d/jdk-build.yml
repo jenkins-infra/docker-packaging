@@ -1,5 +1,5 @@
 ---
-name: Bump JDK17 version
+name: Bump JDK version
 
 scms:
   default:
