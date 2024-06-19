@@ -18,8 +18,8 @@ sources:
     kind: githubrelease
     name: Get the latest Maven version
     spec:
-      owner: "apache"
-      repository: "maven"
+      owner: apache
+      repository: maven
       token: "{{ requiredEnv .github.token }}"
       username: "{{ .github.username }}"
       versionfilter:
@@ -36,25 +36,24 @@ conditions:
     spec:
       command: curl --connect-timeout 5 --location --head --fail --silent --show-error https://archive.apache.org/dist/maven/maven-3/{{ source `mavenVersion` }}/binaries/apache-maven-{{ source `mavenVersion` }}-bin.tar.gz
 
-
 targets:
   updateDockerfileVersion:
-    name: "Update the value of ARG MAVEN_VERSION in the Dockerfile"
+    name: Update the value of ARG MAVEN_VERSION in the Dockerfile
     sourceid: mavenVersion
     kind: dockerfile
     spec:
       file: Dockerfile
       instruction:
-        keyword: "ARG"
-        matcher: "MAVEN_VERSION"
+        keyword: ARG
+        matcher: MAVEN_VERSION
     scmid: default
   updateCstVersion:
-    name: "Update test harness with new Maven version"
+    name: Update test harness with new Maven version
     sourceid: mavenVersion
     kind: yaml
     spec:
-      file: "cst.yml"
-      key: "commandTests[1].expectedOutput[1]"
+      file: ./cst.yml
+      key: $.commandTests[1].expectedOutput[1]
     scmid: default
 
 actions:
