@@ -10,3 +10,4 @@ github:
 
 jdk:
   majorVersion: 17
+  agentMajorVersion: 17
