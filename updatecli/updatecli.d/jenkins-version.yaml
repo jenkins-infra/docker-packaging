@@ -27,7 +27,7 @@ targets:
     name: Bump JV_VERSION value
     kind: dockerfile
     spec:
-      file: Dockerfile
+      file: ./Dockerfile
       instruction:
         keyword: ARG
         matcher: JV_VERSION

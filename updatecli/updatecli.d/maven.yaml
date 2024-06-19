@@ -42,7 +42,7 @@ targets:
     sourceid: mavenVersion
     kind: dockerfile
     spec:
-      file: Dockerfile
+      file: ./Dockerfile
       instruction:
         keyword: ARG
         matcher: MAVEN_VERSION
