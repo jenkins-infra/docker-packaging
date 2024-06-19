@@ -1,3 +1,4 @@
+---
 name: Bump `jv` CLI (jenkins-version)
 
 scms:
@@ -21,19 +22,9 @@ sources:
       token: "{{ requiredEnv .github.token }}"
       username: "{{ .github.username }}"
 
-conditions:
-  dockerfileInstruction:
-    name: "Does the Dockerfile have an ARG instruction which key is JV_VERSION?"
-    kind: dockerfile
-    spec:
-      file: Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: JV_VERSION
-
 targets:
   updateDockerfile:
-    name: "Bump JV_VERSION value"
+    name: Bump JV_VERSION value
     kind: dockerfile
     spec:
       file: Dockerfile
