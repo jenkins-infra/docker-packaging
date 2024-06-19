@@ -1,3 +1,4 @@
+---
 name: Bump Jenkins inbound-agent version
 
 scms:
@@ -13,48 +14,54 @@ scms:
       branch: "{{ .github.branch }}"
 
 sources:
+  agentMajorJdkVersion:
+    kind: shell
+    name: Get the agent major JDK version
+    spec:
+      command: echo "{{ .jdk.agentMajorVersion }}"
   lastVersion:
     kind: githubrelease
-    name: Get the latest version
+    name: Get the latest version of the Jenkins Inbound agent image
     spec:
-      owner: "jenkinsci"
-      repository: "docker-agent"
+      owner: jenkinsci
+      repository: docker-agent
       token: "{{ requiredEnv .github.token }}"
       username: "{{ .github.username }}"
       versionfilter:
         kind: latest
 
 conditions:
-  testDockerfile:
-    name: "Does the Dockerfile have an ARG instruction which key is JENKINS_AGENT_VERSION?"
-    kind: dockerfile
-    disablesourceinput: true
-    spec:
-      file: Dockerfile
-      instruction:
-        keyword: "ARG"
-        matcher: "JENKINS_AGENT_VERSION"
   checkDockerImagePublished:
     name: "Is latest docker-inbound-agent image published?"
     kind: dockerimage
     sourceid: lastVersion
     transformers:
-      - addsuffix: "-jdk17"
+      - addsuffix: -jdk{{ source "agentMajorJdkVersion" }}
     spec:
       image: "jenkins/inbound-agent"
       architecture: "amd64"
       ## tag comes from the source
 
 targets:
-  updateDockerfileVersion:
-    name: "Update the value of ARG JENKINS_AGENT_VERSION in the Dockerfile"
+  updateDockerfileAgentVersion:
+    name: Update the value of ARG JENKINS_AGENT_VERSION in the Dockerfile
     sourceid: lastVersion
     kind: dockerfile
     spec:
       file: Dockerfile
       instruction:
-        keyword: "ARG"
-        matcher: "JENKINS_AGENT_VERSION"
+        keyword: ARG
+        matcher: JENKINS_AGENT_VERSION
+    scmid: default
+  updateDockerfileAgentJDKVersion:
+    name: Update the value of ARG JENKINS_AGENT_JDK_MAJOR in the Dockerfile
+    sourceid: agentMajorJdkVersion
+    kind: dockerfile
+    spec:
+      file: Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: JENKINS_AGENT_JDK_MAJOR
     scmid: default
 
 actions:
