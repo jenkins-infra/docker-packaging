@@ -62,7 +62,7 @@ targets:
     sourceid: lastVersion
     kind: dockerfile
     spec:
-      file: Dockerfile
+      file: ./Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
@@ -72,7 +72,7 @@ targets:
     sourceid: majorJdkVersion
     kind: dockerfile
     spec:
-      file: Dockerfile
+      file: ./Dockerfile
       instruction:
         keyword: ARG
         matcher: BUILD_JDK_MAJOR
@@ -85,7 +85,7 @@ targets:
       - addsuffix: '."'
     kind: yaml
     spec:
-      file: cst.yml
+      file: ./cst.yml
       key: $.commandTests[1].expectedOutput[0]
     scmid: default
 actions:

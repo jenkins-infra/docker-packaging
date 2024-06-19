@@ -48,7 +48,7 @@ targets:
     sourceid: lastVersion
     kind: dockerfile
     spec:
-      file: Dockerfile
+      file: ./Dockerfile
       instruction:
         keyword: ARG
         matcher: JENKINS_AGENT_VERSION
@@ -58,7 +58,7 @@ targets:
     sourceid: agentMajorJdkVersion
     kind: dockerfile
     spec:
-      file: Dockerfile
+      file: ./Dockerfile
       instruction:
         keyword: ARG
         matcher: JENKINS_AGENT_JDK_MAJOR
