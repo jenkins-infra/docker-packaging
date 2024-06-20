@@ -114,7 +114,7 @@ RUN update-alternatives --install /usr/bin/java java "${JAVA_HOME}"/bin/java 100
   && java -version
 
 ## Maven is required for Debian packaging step (at least)
-ARG MAVEN_VERSION=3.9.7
+ARG MAVEN_VERSION=3.9.8
 RUN curl --fail --silent --location --show-error --output "/tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
   "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
   && tar zxf "/tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -C /usr/share/ \
