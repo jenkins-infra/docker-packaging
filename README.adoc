@@ -13,4 +13,4 @@ In order to sign packages with a gpg key, the following env variable must be def
 == LINKS
 * https://github.com/jenkinsci/packaging[jenkinsci/packaging]
 * https://github.com/jenkins-infra/charts[jenkins-infra/charts]
-* https://github.com/jenkins-infra/charts[jenkins-infra/release]
+* https://github.com/jenkins-infra/release[jenkins-infra/release]
