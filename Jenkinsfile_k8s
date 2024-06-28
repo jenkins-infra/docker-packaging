@@ -1,1 +1,8 @@
-parallelDockerUpdatecli([imageName: 'packaging', rebuildImageOnPeriodicJob: false, buildDockerConfig : [useContainer: false, targetplatforms: 'linux/amd64,linux/arm64']])
+parallelDockerUpdatecli([
+  imageName: 'packaging',
+  rebuildImageOnPeriodicJob: false,
+  buildDockerConfig : [
+    useContainer: false,
+    targetplatforms: 'linux/amd64,linux/arm64'
+  ]
+])
