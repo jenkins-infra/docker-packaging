@@ -6,7 +6,7 @@ ARG BUILD_JDK_MAJOR=17
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS jdk
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk${JENKINS_AGENT_JDK_MAJOR} AS jenkins-agent
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 LABEL project="https://github.com/jenkins-infra/docker-packaging"
 
@@ -14,7 +14,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 ENV LANG C.UTF-8
 
-## Always install the latest package and pip versions
+## Always install the latest package versions
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
@@ -32,7 +32,7 @@ RUN apt-get update \
     make \
     openssh-server \
     openssl \
-    python3-pip \
+    python3-jinja2 \
     python3-pytest \
     python3-venv \
     rpm \
@@ -40,7 +40,6 @@ RUN apt-get update \
     tzdata \
     unzip \
   && apt-get clean \
-  && pip3 install --no-cache-dir jinja2 \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG JV_VERSION=0.6.4
@@ -66,8 +65,8 @@ RUN curl --silent --show-error --location --output /tmp/jx-release-version.tar.g
   && chmod a+x /usr/bin/jx-release-version \
   && jx-release-version --help
 
-ARG AZURE_CLI_VERSION=2.37.0
-## Always install the latest package and pip versions
+ARG AZURE_CLI_VERSION=2.62.0
+## Always install the latest package versions
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
@@ -76,12 +75,10 @@ RUN apt-get update \
     curl \
     gnupg \
     lsb-release \
-    libffi-dev \
-    libsodium-dev \
-    python3-dev \
-  && SODIUM_INSTALL="system" python3 -m pip install --no-cache-dir pynacl \
-  # switch back to the package manager version once https://github.com/Azure/azure-cli/issues/7368 is resolved
-  && python3 -m pip install --no-cache-dir azure-cli=="${AZURE_CLI_VERSION}" \
+  && curl --silent --show-error --location https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null \
+  && echo "deb [arch=$(dpkg --print-architecture)] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list \
+  && apt-get update \
+  && apt-get install --yes --no-install-recommends azure-cli="${AZURE_CLI_VERSION}-1~$(lsb_release -cs)" \
   && az --version \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -135,7 +132,7 @@ COPY ./macros.d /usr/lib/rpm/macros.d
 ARG JENKINS_USERNAME=jenkins
 ENV USER=${JENKINS_USERNAME}
 ENV HOME=/home/"${JENKINS_USERNAME}"
-RUN useradd -m -u 1000 "${JENKINS_USERNAME}"
+RUN deluser ubuntu && useradd -m -u 1000 "${JENKINS_USERNAME}"
 
 USER $JENKINS_USERNAME
 
