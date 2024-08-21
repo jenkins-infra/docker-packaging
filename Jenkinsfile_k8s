@@ -3,6 +3,6 @@ parallelDockerUpdatecli([
   rebuildImageOnPeriodicJob: false,
   buildDockerConfig : [
     useContainer: false,
-    targetplatforms: 'linux/amd64,linux/arm64'
+    targetplatforms: 'linux/amd64'
   ]
 ])
