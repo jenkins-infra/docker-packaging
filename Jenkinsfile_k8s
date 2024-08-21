@@ -1,8 +1,8 @@
-parallelDockerUpdatecli([
-  imageName: 'packaging',
-  rebuildImageOnPeriodicJob: false,
-  buildDockerConfig : [
-    useContainer: false,
-    targetplatforms: 'linux/amd64,linux/arm64'
-  ]
-])
+String cronTriggerExpression = ''
+if (env.BRANCH_IS_PRIMARY) {
+    cronTriggerExpression = '@weekly'
+}
+
+properties([pipelineTriggers([cron(cronTriggerExpression)])])
+
+buildDockerAndPublishImage('packaging', [targetplatforms: 'linux/amd64,linux/arm64'])
