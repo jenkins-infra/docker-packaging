@@ -1,5 +1,5 @@
-ARG JENKINS_AGENT_VERSION=3256.v88a_f6e922152-3
-ARG JAVA_VERSION=17.0.11_9
+ARG JENKINS_AGENT_VERSION=3261.v9c670a_4748a_9-2
+ARG JAVA_VERSION=17.0.12_7
 ARG JENKINS_AGENT_JDK_MAJOR=17
 ARG BUILD_JDK_MAJOR=17
 
@@ -43,7 +43,7 @@ RUN apt-get update \
   && pip3 install --no-cache-dir jinja2 \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ARG JV_VERSION=0.6.2
+ARG JV_VERSION=0.6.5
 RUN curl -o "jenkins-version-linux-$(dpkg --print-architecture).tar.gz" -L "https://github.com/jenkins-infra/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-$(dpkg --print-architecture).tar.gz" && \
   tar xvfz "jenkins-version-linux-$(dpkg --print-architecture).tar.gz" && \
   mv jv /usr/local/bin && \
