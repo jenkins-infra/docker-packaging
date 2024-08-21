@@ -5,4 +5,4 @@ if (env.BRANCH_IS_PRIMARY) {
 
 properties([pipelineTriggers([cron(cronTriggerExpression)])])
 
-buildDockerAndPublishImage('packaging', [targetplatforms: 'linux/amd64,linux/arm64'])
+buildDockerAndPublishImage('packaging', [targetplatforms: 'linux/amd64'])
