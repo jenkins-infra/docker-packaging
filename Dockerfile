@@ -42,7 +42,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ARG JV_VERSION=0.6.9
+ARG JV_VERSION=0.6.10
 RUN curl -o "jenkins-version-linux-$(dpkg --print-architecture).tar.gz" -L "https://github.com/jenkins-infra/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-$(dpkg --print-architecture).tar.gz" && \
   tar xvfz "jenkins-version-linux-$(dpkg --print-architecture).tar.gz" && \
   mv jv /usr/local/bin && \
