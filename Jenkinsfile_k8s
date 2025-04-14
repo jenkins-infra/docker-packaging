@@ -1,8 +1,3 @@
-parallelDockerUpdatecli([
-  imageName: 'packaging',
-  rebuildImageOnPeriodicJob: false,
-  buildDockerConfig : [
-    useContainer: false,
-    targetplatforms: 'linux/amd64'
-  ]
-])
+buildDockerAndPublishImage('packaging', [
+    targetplatforms: 'linux/amd64',
+    ])
