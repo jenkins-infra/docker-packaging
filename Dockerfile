@@ -1,6 +1,6 @@
 ARG JENKINS_AGENT_VERSION=3309.v27b_9314fd1a_4-2
 ARG JAVA_VERSION=17.0.15_6
-ARG JENKINS_AGENT_JDK_MAJOR=21
+ARG JENKINS_AGENT_JDK_MAJOR=17
 ARG BUILD_JDK_MAJOR=17
 
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS jdk
@@ -99,7 +99,7 @@ ENV PATH "${JAVA_HOME}/bin:${PATH}"
 ## Note: when using the same major versions, the temurin JDK overrides the agent JDK.
 ##    We need to keep this behavior as both JDK can differ. The long term solution is to switch this image to the "all in one".
 # Repeat ARG to scope it in this stage
-ARG JENKINS_AGENT_JDK_MAJOR=21
+ARG JENKINS_AGENT_JDK_MAJOR=17
 COPY --from=jenkins-agent /opt/java/openjdk /opt/jdk-"${JENKINS_AGENT_JDK_MAJOR}"
 COPY --from=jdk /opt/java/openjdk ${JAVA_HOME}
 
