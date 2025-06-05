@@ -45,6 +45,12 @@ sources:
       - findsubmatch:
           pattern: 'FROM eclipse-temurin:(.[^-]*)-(.*) AS(.*)'
           captureindex: 2
+  mavenCurrentCstVersion:
+    kind: yaml
+    name: Get the current maven version for cst update
+    spec:
+      file: ./cst.yml
+      key: $.commandTests[1].expectedOutput[1]
 
 conditions:
   checkDockerImagePublished:
@@ -77,16 +83,50 @@ targets:
         keyword: ARG
         matcher: BUILD_JDK_MAJOR
     scmid: default
-  updateTestHarness:
-    name: Update the value of the major JDK version in the test harnes
+  updateTestHarnessCommandTests0-name:
+    name: Update Test Harnes file CommandTest 0 Name
     sourceid: majorJdkVersion
-    transformers:
-      - addprefix: '"Java version: '
-      - addsuffix: '."'
+    kind: yaml
+    spec:
+      file: ./cst.yml
+      key: $.commandTests[0].name
+      value: "Check that `java` {{ .jdk.majorVersion }} binary for agent processes is present"
+    scmid: default
+  updateTestHarnessCommandTests0-command:
+    name: Update Test Harnes file CommandTest 0 Command
+    sourceid: majorJdkVersion
+    kind: yaml
+    spec:
+      file: ./cst.yml
+      key: $.commandTests[0].command
+      value: "/opt/jdk-{{ .jdk.majorVersion }}/bin/java"
+    scmid: default
+  updateTestHarnessCommandTests0-expectedOutput:
+    name: Update Test Harnes file CommandTest 0 expectedOutput
+    sourceid: majorJdkVersion
+    kind: yaml
+    spec:
+      file: ./cst.yml
+      key: $.commandTests[0].expectedOutput[0]
+      value: "Temurin-{{ .jdk.majorVersion }}"
+    scmid: default
+  updateTestHarnessCommandTests1-name:
+    name: Update Test Harnes file CommandTest 1 name
+    sourceid: majorJdkVersion
+    kind: yaml
+    spec:
+      file: ./cst.yml
+      key: $.commandTests[1].name
+      value: Check that `maven` and `java` are present in the PATH and default to JDK {{ .jdk.majorVersion }} and {{ source "mavenCurrentCstVersion" }}
+    scmid: default
+  updateTestHarnessCommandTests1-expectedOutput:
+    name: Update Test Harnes file CommandTest 1 expectedOutput
+    sourceid: majorJdkVersion
     kind: yaml
     spec:
       file: ./cst.yml
       key: $.commandTests[1].expectedOutput[0]
+      value: "Java version: {{ .jdk.majorVersion }}."
     scmid: default
 actions:
   default:
