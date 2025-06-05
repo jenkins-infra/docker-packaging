@@ -64,7 +64,7 @@ commandTests:
     command: "/opt/jdk-17/bin/java"
     args: ["--version"]
     expectedOutput: ["Temurin-17"]
-  - name: "Check that 'maven' and `java` are present in the PATH and default to JDK11 + 3.8.6"
+  - name: Check that `maven` and `java` are present in the PATH and default to JDK 21 and 3.9.9
     command: "mvn"
     args: ["-v"]
     expectedOutput: ["Java version: 17.", 3.9.9]
