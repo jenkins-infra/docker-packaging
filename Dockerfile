@@ -1,7 +1,7 @@
 ARG JENKINS_AGENT_VERSION=3309.v27b_9314fd1a_4-4
 ARG JAVA_VERSION=17.0.15_6
 ARG JENKINS_AGENT_JDK_MAJOR=21
-ARG BUILD_JDK_MAJOR=17
+ARG BUILD_JDK_MAJOR=21
 
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS jdk
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk${JENKINS_AGENT_JDK_MAJOR} AS jenkins-agent
@@ -92,7 +92,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Repeat ARG to scope it in this stage
-ARG BUILD_JDK_MAJOR=17
+ARG BUILD_JDK_MAJOR=21
 ENV JAVA_HOME=/opt/jdk-"${BUILD_JDK_MAJOR}"
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 
