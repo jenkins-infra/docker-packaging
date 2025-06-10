@@ -63,7 +63,7 @@ commandTests:
   - name: "Check that `java` 17 binary for agent processes is present"
     command: /opt/jdk-21/bin/java
     args: ["--version"]
-    expectedOutput: ["Temurin-17"]
+    expectedOutput: [Temurin-21]
   - name: "Check that 'maven' and `java` are present in the PATH and default to JDK11 + 3.8.6"
     command: "mvn"
     args: ["-v"]
