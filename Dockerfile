@@ -170,6 +170,6 @@ LABEL io.jenkins-infra.tools.gh.version="${GH_VERSION}"
 LABEL io.jenkins-infra.tools.jx-release-version.version="${JX_RELEASE_VERSION}"
 LABEL io.jenkins-infra.tools.jenkins-agent.version="${JENKINS_AGENT_VERSION}"
 LABEL io.jenkins-infra.tools.jv.version="${JV_VERSION}"
-
+LABEL io.jenkins-infra.tools.azcopy.version="${AZCOPY_VERSION}"
 
 ENTRYPOINT ["/usr/local/bin/jenkins-agent"]
