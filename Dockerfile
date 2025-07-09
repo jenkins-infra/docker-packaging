@@ -12,7 +12,7 @@ LABEL project="https://github.com/jenkins-infra/docker-packaging"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 ## Always install the latest package versions
 # hadolint ignore=DL3008,DL3013
@@ -83,6 +83,29 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+## Install azcopy
+ARG AZCOPY_VERSION=10.29.1
+RUN ARCH="$(uname -m)"; \
+    case "${ARCH}" in \
+        aarch64|arm64) \
+            azcopy_arch="arm64"; \
+            ;; \
+        amd64|x86_64) \
+            azcopy_arch="x86_64"; \
+            ;; \
+        *) \
+            echo "Unsupported arch: ${ARCH}"; \
+            exit 1; \
+            ;; \
+    esac; \
+    azcopy_pkg="$(mktemp)" \
+    && curl --silent --show-error --location --output "${azcopy_pkg}" "https://github.com/Azure/azure-storage-azcopy/releases/download/v${AZCOPY_VERSION}/azcopy-${AZCOPY_VERSION}.${azcopy_arch}.deb" \
+    && dpkg --install "${azcopy_pkg}" \
+    # Sanity check
+    && azcopy --version \
+    # Cleanup
+    && rm -f "${azcopy_pkg}"
+
 ## Always install the latest packages
 # hadolint ignore=DL3008
 RUN apt-get update \
@@ -94,7 +117,7 @@ RUN apt-get update \
 # Repeat ARG to scope it in this stage
 ARG BUILD_JDK_MAJOR=21
 ENV JAVA_HOME=/opt/jdk-"${BUILD_JDK_MAJOR}"
-ENV PATH "${JAVA_HOME}/bin:${PATH}"
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 ## Note: when using the same major versions, the temurin JDK overrides the agent JDK.
 ##    We need to keep this behavior as both JDK can differ. The long term solution is to switch this image to the "all in one".
@@ -141,11 +164,12 @@ RUN mkdir "${HOME}"/.ssh \
 
 RUN git config --global pull.rebase false
 
+ARG JENKINS_AGENT_VERSION=3309.v27b_9314fd1a_4-7
 LABEL io.jenkins-infra.tools="bash,debhelper,fakeroot,git,gpg,gh,jx-release-version,java,jv,jenkins-agent,make"
 LABEL io.jenkins-infra.tools.gh.version="${GH_VERSION}"
 LABEL io.jenkins-infra.tools.jx-release-version.version="${JX_RELEASE_VERSION}"
 LABEL io.jenkins-infra.tools.jenkins-agent.version="${JENKINS_AGENT_VERSION}"
 LABEL io.jenkins-infra.tools.jv.version="${JV_VERSION}"
-
+LABEL io.jenkins-infra.tools.azcopy.version="${AZCOPY_VERSION}"
 
 ENTRYPOINT ["/usr/local/bin/jenkins-agent"]

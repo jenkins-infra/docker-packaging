@@ -8,6 +8,8 @@ metadataTest:
   labels:
     - key: 'project'
       value: 'https://github.com/jenkins-infra/docker-packaging'
+    - key: io.jenkins-infra.tools.azcopy.version
+      value: 10.29.1
   user: jenkins
 fileExistenceTests:
   - name: 'RPM Macros'
@@ -59,6 +61,10 @@ fileExistenceTests:
     path: '/usr/bin/g++'
     shouldExist: true
     isExecutableBy: 'any'
+  - name: "azcopy"
+    path: "/usr/bin/azcopy"
+    shouldExist: true
+    isExecutableBy: "any"
 commandTests:
   - name: Check that `java` 21 binary for agent processes is present
     command: /opt/jdk-21/bin/java
