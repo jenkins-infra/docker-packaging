@@ -73,4 +73,4 @@ commandTests:
   - name: Check that `maven` and `java` are present in the PATH and default to JDK 21 and 3.9.10
     command: "mvn"
     args: ["-v"]
-    expectedOutput: ["Java version: 21.", 3.9.10]
+    expectedOutput: ["Java version: 21.", 3.9.11]
