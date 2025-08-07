@@ -9,7 +9,7 @@ metadataTest:
     - key: 'project'
       value: 'https://github.com/jenkins-infra/docker-packaging'
     - key: io.jenkins-infra.tools.azcopy.version
-      value: 10.29.1
+      value: 10.30.0
   user: jenkins
 fileExistenceTests:
   - name: 'RPM Macros'
