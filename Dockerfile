@@ -84,7 +84,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ## Install azcopy
-ARG AZCOPY_VERSION=10.29.1
+ARG AZCOPY_VERSION=10.30.0
 RUN ARCH="$(uname -m)"; \
     case "${ARCH}" in \
         aarch64|arm64) \
