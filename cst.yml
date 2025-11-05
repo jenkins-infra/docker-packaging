@@ -65,6 +65,14 @@ fileExistenceTests:
     path: "/usr/bin/azcopy"
     shouldExist: true
     isExecutableBy: "any"
+  - name: createrepo_c # Installed from package createrepo-c
+    path: "/usr/bin/createrepo_c"
+    shouldExist: true
+    isExecutableBy: "any"
+  - name: createrepo # We expect a symlink
+    path: "/usr/bin/createrepo"
+    shouldExist: true
+    isExecutableBy: "any"
 commandTests:
   - name: Check that `java` 21 binary for agent processes is present
     command: /opt/jdk-21/bin/java
