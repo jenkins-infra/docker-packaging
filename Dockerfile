@@ -35,12 +35,14 @@ RUN apt-get update \
     python3-jinja2 \
     python3-pytest \
     python3-venv \
-    rpm \
+    rpm `# Required to build RPMs` \
+    createrepo-c `# Required to build RPMs` \
     rsync \
     tzdata \
     unzip \
   && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && ln -s /usr/bin/createrepo_c /usr/bin/createrepo
 
 ARG JV_VERSION=0.11.1
 RUN curl -o "jenkins-version-linux-$(dpkg --print-architecture).tar.gz" -L "https://github.com/jenkins-infra/jenkins-version/releases/download/${JV_VERSION}/jenkins-version-linux-$(dpkg --print-architecture).tar.gz" && \
