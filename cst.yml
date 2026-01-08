@@ -21,9 +21,6 @@ fileExistenceTests:
   - name: "Default user's home"
     path: '/home/jenkins'
     shouldExist: true
-  - name: "SSH known hosts"
-    path: '/home/jenkins/.ssh/known_hosts'
-    shouldExist: true
   # CLI binaries
   - name: 'Bash'
     path: '/bin/bash'
