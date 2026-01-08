@@ -161,9 +161,6 @@ RUN deluser ubuntu && useradd -m -u 1000 "${JENKINS_USERNAME}"
 
 USER $JENKINS_USERNAME
 
-RUN mkdir "${HOME}"/.ssh \
-  && ssh-keyscan -t rsa pkg.origin.jenkins.io >> "${HOME}"/.ssh/known_hosts
-
 RUN git config --global pull.rebase false
 
 ARG JENKINS_AGENT_VERSION=3355.v388858a_47b_33-5
