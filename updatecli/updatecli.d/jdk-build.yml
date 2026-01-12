@@ -84,7 +84,7 @@ targets:
         matcher: BUILD_JDK_MAJOR
     scmid: default
   updateTestHarnessCommandTests0-name:
-    name: Update Test Harnes file CommandTest 0 Name
+    name: Update Test Harness file CommandTest 0 Name
     sourceid: majorJdkVersion
     kind: yaml
     spec:
@@ -93,7 +93,7 @@ targets:
       value: "Check that `java` {{ .jdk.majorVersion }} binary for agent processes is present"
     scmid: default
   updateTestHarnessCommandTests0-command:
-    name: Update Test Harnes file CommandTest 0 Command
+    name: Update Test Harness file CommandTest 0 Command
     sourceid: majorJdkVersion
     kind: yaml
     spec:
@@ -102,7 +102,7 @@ targets:
       value: "/opt/jdk-{{ .jdk.majorVersion }}/bin/java"
     scmid: default
   updateTestHarnessCommandTests0-expectedOutput:
-    name: Update Test Harnes file CommandTest 0 expectedOutput
+    name: Update Test Harness file CommandTest 0 expectedOutput
     sourceid: majorJdkVersion
     kind: yaml
     spec:
@@ -111,7 +111,7 @@ targets:
       value: "Temurin-{{ .jdk.majorVersion }}"
     scmid: default
   updateTestHarnessCommandTests1-name:
-    name: Update Test Harnes file CommandTest 1 name
+    name: Update Test Harness file CommandTest 1 name
     sourceid: majorJdkVersion
     kind: yaml
     spec:
@@ -120,7 +120,7 @@ targets:
       value: Check that `maven` and `java` are present in the PATH and default to JDK {{ .jdk.majorVersion }} and {{ source "mavenCurrentCstVersion" }}
     scmid: default
   updateTestHarnessCommandTests1-expectedOutput:
-    name: Update Test Harnes file CommandTest 1 expectedOutput
+    name: Update Test Harness file CommandTest 1 expectedOutput
     sourceid: majorJdkVersion
     kind: yaml
     spec:
