@@ -53,7 +53,7 @@ targets:
         matcher: MAVEN_VERSION
     scmid: default
   updateCstVersion:
-    name: Update test Harness with new Maven version
+    name: Update test harness with new Maven version
     sourceid: mavenVersion
     kind: yaml
     spec:
@@ -61,7 +61,7 @@ targets:
       key: $.commandTests[1].expectedOutput[1]
     scmid: default
   updateTestHarnessCommandTests1-name:
-    name: Update Test Harness file CommandTest 1 name
+    name: Update Test harness file CommandTest 1 name
     sourceid: majorJdkVersion
     kind: yaml
     spec:
