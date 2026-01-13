@@ -36,7 +36,7 @@ conditions:
         keyword: "ARG"
         matcher: "AZCOPY_VERSION"
   testCstAzCliVersion:
-    name: "Does the test Harness checks for a label io.jenkins-infra.tools.azcopy.version?"
+    name: "Does the test harness checks for a label io.jenkins-infra.tools.azcopy.version?"
     kind: yaml
     disablesourceinput: true
     spec:
