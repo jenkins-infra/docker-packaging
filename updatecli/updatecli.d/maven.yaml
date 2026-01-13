@@ -28,11 +28,6 @@ sources:
         pattern: "^maven-(\\d*).(\\d*).(\\d*)$"
     transformers:
       - trimprefix: "maven-"
-  majorJdkVersion:
-    kind: shell
-    name: Get the major JDK version
-    spec:
-      command: echo "{{ .jdk.majorVersion }}"
 
 conditions:
   checkIfReleaseIsAvailable:
@@ -59,15 +54,6 @@ targets:
     spec:
       file: ./cst.yml
       key: $.commandTests[1].expectedOutput[1]
-    scmid: default
-  updateTestHarnessCommandTests1-name:
-    name: Update Test harness file CommandTest 1 name
-    sourceid: majorJdkVersion
-    kind: yaml
-    spec:
-      file: ./cst.yml
-      key: $.commandTests[1].name
-      value: Check that `maven` and `java` are present in the PATH and default to JDK {{ .jdk.majorVersion }} and {{ source "mavenVersion" }}
     scmid: default
 
 actions:

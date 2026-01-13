@@ -110,15 +110,6 @@ targets:
       key: $.commandTests[0].expectedOutput[0]
       value: "Temurin-{{ .jdk.majorVersion }}"
     scmid: default
-  updateTestHarnessCommandTests1-name:
-    name: Update Test Harnes file CommandTest 1 name
-    sourceid: majorJdkVersion
-    kind: yaml
-    spec:
-      file: ./cst.yml
-      key: $.commandTests[1].name
-      value: Check that `maven` and `java` are present in the PATH and default to JDK {{ .jdk.majorVersion }} and {{ source "mavenCurrentCstVersion" }}
-    scmid: default
   updateTestHarnessCommandTests1-expectedOutput:
     name: Update Test Harnes file CommandTest 1 expectedOutput
     sourceid: majorJdkVersion
