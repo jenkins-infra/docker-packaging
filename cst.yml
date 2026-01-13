@@ -75,7 +75,7 @@ commandTests:
     command: /opt/jdk-21/bin/java
     args: ["--version"]
     expectedOutput: [Temurin-21]
-  - name: Check that `maven` and `java` are present in the PATH and default to JDK 21 and 3.9.12
+  - name: Check that `maven` and `java` are present in the PATH with the correct versions
     command: "mvn"
     args: ["-v"]
     expectedOutput: ["Java version: 21.", 3.9.12]
