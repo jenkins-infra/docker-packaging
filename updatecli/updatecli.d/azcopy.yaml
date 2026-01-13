@@ -56,7 +56,7 @@ conditions:
 
 targets:
   updateCstVersion:
-    name: "Update the label io.jenkins-infra.tools.azcopy.version in the test Harness"
+    name: "Update the label io.jenkins-infra.tools.azcopy.version in the test harness"
     sourceid: lastReleaseVersion
     kind: yaml
     spec:
