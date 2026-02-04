@@ -1,4 +1,4 @@
-ARG JENKINS_AGENT_VERSION=3355.v388858a_47b_33-8
+ARG JENKINS_AGENT_VERSION=3355.v388858a_47b_33-9
 ARG JAVA_VERSION=21.0.9_10
 ARG JENKINS_AGENT_JDK_MAJOR=21
 ARG BUILD_JDK_MAJOR=21
@@ -163,7 +163,7 @@ USER $JENKINS_USERNAME
 
 RUN git config --global pull.rebase false
 
-ARG JENKINS_AGENT_VERSION=3355.v388858a_47b_33-8
+ARG JENKINS_AGENT_VERSION=3355.v388858a_47b_33-9
 LABEL io.jenkins-infra.tools="bash,debhelper,fakeroot,git,gpg,gh,jx-release-version,java,jv,jenkins-agent,make"
 LABEL io.jenkins-infra.tools.gh.version="${GH_VERSION}"
 LABEL io.jenkins-infra.tools.jx-release-version.version="${JX_RELEASE_VERSION}"
