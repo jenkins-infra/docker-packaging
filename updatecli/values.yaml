@@ -9,5 +9,5 @@ github:
   repository: "docker-packaging"
 
 jdk:
-  majorVersion: 21
-  agentMajorVersion: 21
+  majorVersion: 25
+  agentMajorVersion: 25
