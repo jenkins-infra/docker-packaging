@@ -10,4 +10,4 @@ github:
 
 jdk:
   majorVersion: 21
-  agentMajorVersion: 21
+  agentMajorVersion: 25
