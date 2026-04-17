@@ -78,4 +78,4 @@ commandTests:
   - name: Check that `maven` and `java` are present in the PATH with the correct versions
     command: "mvn"
     args: ["-v"]
-    expectedOutput: ["Java version: 21.", 3.9.14]
+    expectedOutput: ["Java version: 21.", 3.9.15]
