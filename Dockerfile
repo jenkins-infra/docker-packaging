@@ -154,11 +154,13 @@ COPY ./conf.d/devscripts.conf /etc/devscripts.conf
 COPY ./macros.d /usr/lib/rpm/macros.d
 
 # Create default user (must be the same as the official jenkins-agent image)
+# hadolint ignore=DL3064
 ARG JENKINS_USERNAME=jenkins
 ENV USER=${JENKINS_USERNAME}
 ENV HOME=/home/"${JENKINS_USERNAME}"
 RUN deluser ubuntu && useradd -m -u 1000 "${JENKINS_USERNAME}"
 
+# hadolint ignore=DL3066
 USER $JENKINS_USERNAME
 
 RUN git config --global pull.rebase false
