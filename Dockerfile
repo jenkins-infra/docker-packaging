@@ -1,9 +1,33 @@
 ARG JENKINS_AGENT_VERSION=3386.v353e57a_1b_ea_0-1
-ARG JAVA_VERSION=21.0.11_10
+ARG JAVA_VERSION=21.0.12_8
+ARG JAVA_SHA256=e4446ff06a276155697597cc0f1b15da004ff083f4964a35271ecee567177370
 ARG JENKINS_AGENT_JDK_MAJOR=25
 ARG BUILD_JDK_MAJOR=21
 
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS jdk
+FROM ubuntu:24.04 AS jdk
+SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
+
+ARG JAVA_VERSION
+ARG BUILD_JDK_MAJOR
+ARG JAVA_SHA256
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# hadolint ignore=DL3008
+RUN apt-get update \
+  && apt-get install --yes --no-install-recommends ca-certificates curl \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && jdk_version="$(echo "${JAVA_VERSION}" | tr '_' '+')" \
+  && jdk_archive=/tmp/jdk.tar.gz \
+  && curl --fail --silent --show-error --location --output "${jdk_archive}" \
+    "https://github.com/adoptium/temurin${BUILD_JDK_MAJOR}-binaries/releases/download/jdk-${jdk_version}/OpenJDK${BUILD_JDK_MAJOR}U-jdk_x64_linux_hotspot_${JAVA_VERSION}.tar.gz" \
+  && echo "${JAVA_SHA256}  ${jdk_archive}" | sha256sum --check \
+  && mkdir -p "${JAVA_HOME}" \
+  && tar xzf "${jdk_archive}" --strip-components=1 -C "${JAVA_HOME}" \
+  && rm -f "${jdk_archive}" \
+  && java -version
+
 FROM jenkins/inbound-agent:${JENKINS_AGENT_VERSION}-jdk${JENKINS_AGENT_JDK_MAJOR} AS jenkins-agent
 
 FROM ubuntu:24.04
