@@ -35,24 +35,32 @@ sources:
       - replacer:
           from: "+"
           to: "_"
-  jdkSha256:
-    kind: shell
-    name: Get the sha256 of the JDK{{ .jdk.majorVersion }} linux x64 archive
-    dependson:
-      - lastVersion
+  jdkTemurinSuffix:
+    kind: file
+    name: Get the (eventual) suffix of the Eclipse Temurin base image
     spec:
-      command: >-
-        curl --fail --silent --show-error --location
-        "https://github.com/adoptium/temurin{{ .jdk.majorVersion }}-binaries/releases/download/jdk-$(echo '{{ source `lastVersion` }}' | tr '_' '+')/OpenJDK{{ .jdk.majorVersion }}U-jdk_x64_linux_hotspot_{{ source `lastVersion` }}.tar.gz.sha256.txt"
-        | cut -d' ' -f1
-      environments:
-        - name: PATH
+      file: ./Dockerfile
+      matchpattern: 'FROM eclipse-temurin.*'
+    transformers:
+      - findsubmatch:
+          pattern: 'FROM eclipse-temurin:(.[^-]*)-(.*) AS(.*)'
+          captureindex: 2
   mavenCurrentCstVersion:
     kind: yaml
     name: Get the current maven version for cst update
     spec:
       file: ./cst.yml
       key: $.commandTests[1].expectedOutput[1]
+
+conditions:
+  checkDockerImagePublished:
+    name: Check if the Docker image is published
+    kind: dockerimage
+    disablesourceinput: true
+    spec:
+      image: eclipse-temurin
+      architecture: amd64
+      tag: '{{ source `lastVersion` }}-{{ source `jdkTemurinSuffix` }}'
 
 targets:
   updateDockerfileVersion:
@@ -64,16 +72,6 @@ targets:
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
-    scmid: default
-  updateDockerfileSha256:
-    name: "Update the value of ARG JAVA_SHA256 in the Dockerfile"
-    sourceid: jdkSha256
-    kind: dockerfile
-    spec:
-      file: ./Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: JAVA_SHA256
     scmid: default
   updateDockerfileMajorVersion:
     name: Update the value of ARG BUILD_JDK_MAJOR in the Dockerfile
