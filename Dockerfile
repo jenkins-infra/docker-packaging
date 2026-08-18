@@ -1,5 +1,4 @@
 ARG JENKINS_AGENT_VERSION=3386.v353e57a_1b_ea_0-1
-ARG JAVA_VERSION=21.0.11_10
 ARG JENKINS_AGENT_JDK_MAJOR=25
 ARG BUILD_JDK_MAJOR=21
 
@@ -120,22 +119,26 @@ ARG BUILD_JDK_MAJOR=21
 ENV JAVA_HOME=/opt/jdk-"${BUILD_JDK_MAJOR}"
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
-## Note: when using the same major versions, the temurin JDK overrides the agent JDK.
+## Note: when using the same major versions, the build JDK overrides the agent JDK.
 ##    We need to keep this behavior as both JDK can differ. The long term solution is to switch this image to the "all in one".
 # Repeat ARG to scope it in this stage
 ARG JENKINS_AGENT_JDK_MAJOR=25
-COPY --from=jenkins-agent /opt/java/openjdk /opt/jdk-"${JENKINS_AGENT_JDK_MAJOR}"
 
-ARG JAVA_VERSION
-RUN jdk_archive="$(mktemp)" \
-  && jdk_release="$(echo "${JAVA_VERSION}" | tr '_' '+')" \
-  && mkdir -p "${JAVA_HOME}" \
-  && curl --fail --silent --show-error --location --output "${jdk_archive}" \
-    "https://github.com/adoptium/temurin${BUILD_JDK_MAJOR}-binaries/releases/download/jdk-${jdk_release}/OpenJDK${BUILD_JDK_MAJOR}U-jdk_x64_linux_hotspot_${JAVA_VERSION}.tar.gz" \
-  # TODO: Verify download with GPG
-  && tar xzf "${jdk_archive}" --strip-components=1 -C "${JAVA_HOME}" \
-  # Cleanup
-  && rm -f "${jdk_archive}"
+ARG TARGETPLATFORM
+COPY ./adoptium/jdk_installers.txt /tmp/jdk_installers.txt
+RUN for java_release in "${BUILD_JDK_MAJOR}" "${JENKINS_AGENT_JDK_MAJOR}"; \
+  do \
+    java_home=/opt/jdk-"${java_release}"; \
+    java_zip_url="$(grep "jdk${java_release}/${TARGETPLATFORM}/glibc" /tmp/jdk_installers.txt | cut -d' ' -f2)"; \
+    jdk_archive="$(mktemp)"; \
+    mkdir -p "${java_home}"; \
+    curl --fail --silent --show-error --location --output "${jdk_archive}" "${java_zip_url}"; \
+    # TODO: Verify download with GPG
+    tar xzf "${jdk_archive}" --strip-components=1 -C "${java_home}"; \
+    # Cleanup
+    rm -f "${jdk_archive}"; \
+  done \
+  && rm -f /tmp/jdk_installers.txt
 
 ## Use 1000 to be sure weight is always the bigger
 RUN update-alternatives --install /usr/bin/java java "${JAVA_HOME}"/bin/java 1000 \
