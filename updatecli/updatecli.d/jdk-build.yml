@@ -20,31 +20,41 @@ sources:
     spec:
       command: echo "{{ .jdk.majorVersion }}"
   lastVersion:
-    kind: githubrelease
+    kind: temurin
     name: Get the latest Adoptium JDK{{ .jdk.majorVersion }} version
     spec:
-      owner: adoptium
-      repository: "temurin{{ .jdk.majorVersion }}-binaries"
-      token: "{{ requiredEnv .github.token }}"
-      username: "{{ .github.username }}"
-      versionfilter:
-        kind: regex
-        pattern: "^jdk-{{ .jdk.majorVersion }}.(\\d*).(\\d*).(\\d*)(.(\\d*))+(\\d*)$"
+      featureversion: {{ .jdk.majorVersion }}
     transformers:
       - trimprefix: "jdk-"
-      - replacer:
-          from: "+"
-          to: "_"
-  jdkTemurinSuffix:
-    kind: file
-    name: Get the (eventual) suffix of the Eclipse Temurin base image
+  buildJdkInstallerUrl:
+    kind: temurin
+    name: Get the JDK{{ .jdk.majorVersion }} installer URL
+    dependson:
+      - lastVersion
     spec:
-      file: ./Dockerfile
-      matchpattern: 'FROM eclipse-temurin.*'
+      specificversion: 'jdk-{{ source "lastVersion" }}'
+      architecture: x64
+      operatingsystem: linux
+      releasetype: ga
+      result: installer_url
+  agentLastVersion:
+    kind: temurin
+    name: Get the latest Adoptium JDK{{ .jdk.agentMajorVersion }} version
+    spec:
+      featureversion: {{ .jdk.agentMajorVersion }}
     transformers:
-      - findsubmatch:
-          pattern: 'FROM eclipse-temurin:(.[^-]*)-(.*) AS(.*)'
-          captureindex: 2
+      - trimprefix: "jdk-"
+  agentJdkInstallerUrl:
+    kind: temurin
+    name: Get the JDK{{ .jdk.agentMajorVersion }} installer URL
+    dependson:
+      - agentLastVersion
+    spec:
+      specificversion: 'jdk-{{ source "agentLastVersion" }}'
+      architecture: x64
+      operatingsystem: linux
+      releasetype: ga
+      result: installer_url
   mavenCurrentCstVersion:
     kind: yaml
     name: Get the current maven version for cst update
@@ -52,26 +62,26 @@ sources:
       file: ./cst.yml
       key: $.commandTests[1].expectedOutput[1]
 
-conditions:
-  checkDockerImagePublished:
-    name: Check if the Docker image is published
-    kind: dockerimage
-    disablesourceinput: true
-    spec:
-      image: eclipse-temurin
-      architecture: amd64
-      tag: '{{ source `lastVersion` }}-{{ source `jdkTemurinSuffix` }}'
-
 targets:
-  updateDockerfileVersion:
-    name: "Update the value of ARG JAVA_VERSION in the Dockerfile"
-    sourceid: lastVersion
-    kind: dockerfile
+  updateBuildJdkInstallerUrl:
+    name: Update the JDK{{ .jdk.majorVersion }} installer URL
+    sourceid: buildJdkInstallerUrl
+    kind: file
+    transformers:
+      - addprefix: 'jdk{{ .jdk.majorVersion }}/linux/amd64/glibc '
     spec:
-      file: ./Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: JAVA_VERSION
+      file: ./adoptium/jdk_installers.txt
+      matchpattern: 'jdk{{ .jdk.majorVersion }}/linux/amd64/glibc (.*)'
+    scmid: default
+  updateAgentJdkInstallerUrl:
+    name: Update the JDK{{ .jdk.agentMajorVersion }} installer URL
+    sourceid: agentJdkInstallerUrl
+    kind: file
+    transformers:
+      - addprefix: 'jdk{{ .jdk.agentMajorVersion }}/linux/amd64/glibc '
+    spec:
+      file: ./adoptium/jdk_installers.txt
+      matchpattern: 'jdk{{ .jdk.agentMajorVersion }}/linux/amd64/glibc (.*)'
     scmid: default
   updateDockerfileMajorVersion:
     name: Update the value of ARG BUILD_JDK_MAJOR in the Dockerfile
