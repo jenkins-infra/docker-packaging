@@ -7,7 +7,3 @@ github:
   branch: "main"
   owner: "jenkins-infra"
   repository: "docker-packaging"
-
-jdk:
-  majorVersion: 21
-  agentMajorVersion: 25

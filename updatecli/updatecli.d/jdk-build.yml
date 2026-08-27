@@ -1,140 +1,76 @@
+{{ range $jdkType, $jdkRelease := dict "BUILD_JDK_MAJOR" 21 "JENKINS_AGENT_JDK_MAJOR" 25 }}
 ---
-name: Bump JDK version
+name: Bump {{ $jdkType }} (JDK{{ $jdkRelease }})
 
 scms:
   default:
     kind: github
     spec:
-      user: "{{ .github.user }}"
-      email: "{{ .github.email }}"
-      owner: "{{ .github.owner }}"
-      repository: "{{ .github.repository }}"
-      token: "{{ requiredEnv .github.token }}"
-      username: "{{ .github.username }}"
-      branch: "{{ .github.branch }}"
+      user: "{{ $.github.user }}"
+      email: "{{ $.github.email }}"
+      owner: "{{ $.github.owner }}"
+      repository: "{{ $.github.repository }}"
+      token: "{{ requiredEnv $.github.token }}"
+      username: "{{ $.github.username }}"
+      branch: "{{ $.github.branch }}"
 
 sources:
-  majorJdkVersion:
+  # This source is only required for the Dockerfile targets as updatecli does not support input values for
+  # the kind 'dockerfile' other than a source
+  get_JDK_release:
     kind: shell
-    name: Get the major JDK version
+    name: Print the JDK release (e.g. major version)
     spec:
-      command: echo "{{ .jdk.majorVersion }}"
-  lastVersion:
+      command: echo "{{ $jdkRelease }}"
+  get_latest_JDK_version:
     kind: temurin
-    name: Get the latest Adoptium JDK{{ .jdk.majorVersion }} version
+    name: Get the latest Adoptium JDK{{ $jdkRelease }} version via the API
     spec:
-      featureversion: {{ .jdk.majorVersion }}
+      featureversion: {{ $jdkRelease }}
     transformers:
       - trimprefix: "jdk-"
-  buildJdkInstallerUrl:
+  get_linux_x64_installer_url:
+    name: Retrieve the latest JDK {{ $jdkRelease }} Installer URL for Linux (x64)
     kind: temurin
-    name: Get the JDK{{ .jdk.majorVersion }} installer URL
     dependson:
-      - lastVersion
+      - get_latest_JDK_version
     spec:
-      specificversion: 'jdk-{{ source "lastVersion" }}'
       architecture: x64
       operatingsystem: linux
+      specificversion: '{{ source "get_latest_JDK_version" }}'
       releasetype: ga
       result: installer_url
-  agentLastVersion:
-    kind: temurin
-    name: Get the latest Adoptium JDK{{ .jdk.agentMajorVersion }} version
-    spec:
-      featureversion: {{ .jdk.agentMajorVersion }}
-    transformers:
-      - trimprefix: "jdk-"
-  agentJdkInstallerUrl:
-    kind: temurin
-    name: Get the JDK{{ .jdk.agentMajorVersion }} installer URL
-    dependson:
-      - agentLastVersion
-    spec:
-      specificversion: 'jdk-{{ source "agentLastVersion" }}'
-      architecture: x64
-      operatingsystem: linux
-      releasetype: ga
-      result: installer_url
-  mavenCurrentCstVersion:
-    kind: yaml
-    name: Get the current maven version for cst update
-    spec:
-      file: ./cst.yml
-      key: $.commandTests[1].expectedOutput[1]
 
 targets:
-  updateBuildJdkInstallerUrl:
-    name: Update the JDK{{ .jdk.majorVersion }} installer URL
-    sourceid: buildJdkInstallerUrl
+  {{- $prefix := printf "jdk%d/linux/amd64/glibc" $jdkRelease }}
+  set_linux_x64:
+    name: Bump JDK{{ $jdkRelease }} Installer URL for Linux (x64)
     kind: file
+    sourceid: get_linux_x64_installer_url
     transformers:
-      - addprefix: 'jdk{{ .jdk.majorVersion }}/linux/amd64/glibc '
+      - addprefix: '{{ $prefix }} ' # Trailing space is important! It's the separator
     spec:
-      file: ./adoptium/jdk_installers.txt
-      matchpattern: 'jdk{{ .jdk.majorVersion }}/linux/amd64/glibc (.*)'
-    scmid: default
-  updateAgentJdkInstallerUrl:
-    name: Update the JDK{{ .jdk.agentMajorVersion }} installer URL
-    sourceid: agentJdkInstallerUrl
-    kind: file
-    transformers:
-      - addprefix: 'jdk{{ .jdk.agentMajorVersion }}/linux/amd64/glibc '
-    spec:
-      file: ./adoptium/jdk_installers.txt
-      matchpattern: 'jdk{{ .jdk.agentMajorVersion }}/linux/amd64/glibc (.*)'
+      file: adoptium/jdk_installers.txt
+      matchpattern: '{{ $prefix }} (.*)'
     scmid: default
   updateDockerfileMajorVersion:
-    name: Update the value of ARG BUILD_JDK_MAJOR in the Dockerfile
-    sourceid: majorJdkVersion
+    name: Update the value of ARG {{ $jdkType }} in the Dockerfile
+    sourceid: get_JDK_release
     kind: dockerfile
     spec:
       file: ./Dockerfile
       instruction:
         keyword: ARG
-        matcher: BUILD_JDK_MAJOR
-    scmid: default
-  updateTestHarnessCommandTests0-name:
-    name: Update Test Harnes file CommandTest 0 Name
-    sourceid: majorJdkVersion
-    kind: yaml
-    spec:
-      file: ./cst.yml
-      key: $.commandTests[0].name
-      value: "Check that `java` {{ .jdk.majorVersion }} binary for agent processes is present"
-    scmid: default
-  updateTestHarnessCommandTests0-command:
-    name: Update Test Harnes file CommandTest 0 Command
-    sourceid: majorJdkVersion
-    kind: yaml
-    spec:
-      file: ./cst.yml
-      key: $.commandTests[0].command
-      value: "/opt/jdk-{{ .jdk.majorVersion }}/bin/java"
-    scmid: default
-  updateTestHarnessCommandTests0-expectedOutput:
-    name: Update Test Harnes file CommandTest 0 expectedOutput
-    sourceid: majorJdkVersion
-    kind: yaml
-    spec:
-      file: ./cst.yml
-      key: $.commandTests[0].expectedOutput[0]
-      value: "Temurin-{{ .jdk.majorVersion }}"
-    scmid: default
-  updateTestHarnessCommandTests1-expectedOutput:
-    name: Update Test Harnes file CommandTest 1 expectedOutput
-    sourceid: majorJdkVersion
-    kind: yaml
-    spec:
-      file: ./cst.yml
-      key: $.commandTests[1].expectedOutput[0]
-      value: "Java version: {{ .jdk.majorVersion }}."
+        matcher: {{ $jdkType }}
     scmid: default
 actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK{{ .jdk.majorVersion }} version to {{ source "lastVersion" }}
+    title: Bump {{ $jdkType }} (JDK{{ $jdkRelease }}) to {{ source "get_latest_JDK_version" }}
     spec:
       labels:
         - dependencies
-        - "jdk{{ .jdk.majorVersion }}"
+        - "jdk{{ $jdkRelease }}"
+...
+{{- end }}
