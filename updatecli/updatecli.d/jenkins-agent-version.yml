@@ -15,10 +15,12 @@ scms:
 
 sources:
   agentMajorJdkVersion:
-    kind: shell
-    name: Get the agent major JDK version
+    kind: dockerfile
     spec:
-      command: echo "{{ .jdk.agentMajorVersion }}"
+      file: ./Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: JENKINS_AGENT_JDK_MAJOR
   lastVersion:
     kind: githubrelease
     name: Get the latest version of the Jenkins Inbound agent image
